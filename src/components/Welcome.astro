@@ -1,0 +1,26 @@
+---
+import TheExperience from "@components/TheExperience.vue";
+import About from "src/pages/about.astro";
+import Services from "src/pages/services.astro";
+---
+
+<div class="content">
+	<TheExperience client:visible />
+	<About />
+	<Services />
+</div>
+
+<style>
+	.content {
+		margin-top: 80px;
+		place-items: center;
+		background-color: white;
+		font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova",
+			"Nimbus Sans", Arial, sans-serif;
+	}
+	@media (max-width: 768px) {
+		.content {
+			margin-top: 60px;
+		}
+	}
+</style>

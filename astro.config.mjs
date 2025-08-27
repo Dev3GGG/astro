@@ -1,0 +1,9 @@
+// @ts-check
+import { defineConfig } from 'astro/config';
+import { templateCompilerOptions } from '@tresjs/core';
+import vue from '@astrojs/vue';
+
+// https://astro.build/config
+export default defineConfig({
+  integrations: [vue({ ...templateCompilerOptions })]
+});

@@ -1,0 +1,42 @@
+---
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const hash = `#${id}`;
+---
+
+<a href={hash}>
+  <slot name="before" />
+  <slot />
+  <slot name="after" />
+</a>
+
+<style>
+  a {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: 30px;
+    margin-right: 50px;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    color: black;
+    opacity: 0.6;
+    font-size: 20px;
+    font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova",
+      "Nimbus Sans", Arial, sans-serif;
+  }
+  a:hover {
+    text-decoration: underline;
+    text-decoration-color: #4d78d3;
+    text-underline-offset: 10px;
+  }
+  @media (max-width: 768px) {
+    a {
+      margin-right: 0px;
+    }
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import CardLaunch from "./CardLaunch.astro";
+const url = "https://fakestoreapi.com/products";
+let products: {
+    id: number;
+    title: string;
+    price: number;
+    image: string;
+}[] = [];
+const response = await fetch(url);
+const data = await response.json();
+products = data;
+---
+
+<div class="card">
+    {
+        products.map((product) => (
+            <CardLaunch
+                id={product.id}
+                title={product.title}
+                price={product.price}
+                image={product.image}
+            />
+        ))
+    }
+</div>
+
+<style>
+    .card {
+        max-width: 90%;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        padding: 20px 0px 20px 0px;
+        gap: 35px;
+    }
+</style>
