@@ -11,7 +11,7 @@
                     <button class="find-out" aria-label="Descubre más sobre nuestras soluciones">Descúbrelo</button>
                 </div>
                 <div class="object fade-up">
-                    <TresCanvas v-bind="gl" :dpr="[1, 2]">
+                    <TresCanvas v-bind="gl">
                         <TresPerspectiveCamera :position="[0, 0, 3]" />
                         <TresAmbientLight :intensity="0.9" />
                         <TresDirectionalLight :position="[5, 5, 5]" :intensity="2" />
@@ -40,7 +40,6 @@ const gl = {
     shadowMapType: BasicShadowMap,
     outputColorSpace: SRGBColorSpace,
     toneMapping: NoToneMapping,
-    powerPreference: 'high-performance',
 }
 
 onMounted(() => {
