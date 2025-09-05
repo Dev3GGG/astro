@@ -1,50 +1,30 @@
 ---
 import HeaderButton from "@components/HeaderButton.astro";
+import Logo from "../assets/nizana.svg";
+
+interface LinkItem {
+    label: string;
+    href: string;
+}
+interface Props {
+    links: LinkItem[];
+}
+const { links } = Astro.props;
 ---
 
 <header class="header fade-up">
-    <div class="logo">
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="full"
-            width="115"
-            height="40"
-            ><path
-                fill="#17191E"
-                d="M7.77 36.35C6.4 35.11 6 32.51 6.57 30.62c.99 1.2 2.35 1.57 3.75 1.78 2.18.33 4.31.2 6.33-.78.23-.12.44-.27.7-.42.18.55.23 1.1.17 1.67a4.56 4.56 0 0 1-1.94 3.23c-.43.32-.9.61-1.34.91-1.38.94-1.76 2.03-1.24 3.62l.05.17a3.63 3.63 0 0 1-1.6-1.38 3.87 3.87 0 0 1-.63-2.1c0-.37 0-.74-.05-1.1-.13-.9-.55-1.3-1.33-1.32a1.56 1.56 0 0 0-1.63 1.26c0 .06-.03.12-.05.2Z"
-            ></path><path
-                fill="url(#a)"
-                d="M7.77 36.35C6.4 35.11 6 32.51 6.57 30.62c.99 1.2 2.35 1.57 3.75 1.78 2.18.33 4.31.2 6.33-.78.23-.12.44-.27.7-.42.18.55.23 1.1.17 1.67a4.56 4.56 0 0 1-1.94 3.23c-.43.32-.9.61-1.34.91-1.38.94-1.76 2.03-1.24 3.62l.05.17a3.63 3.63 0 0 1-1.6-1.38 3.87 3.87 0 0 1-.63-2.1c0-.37 0-.74-.05-1.1-.13-.9-.55-1.3-1.33-1.32a1.56 1.56 0 0 0-1.63 1.26c0 .06-.03.12-.05.2Z"
-            ></path><path
-                fill="#17191E"
-                d="M.02 30.31s4.02-1.95 8.05-1.95l3.04-9.4c.11-.45.44-.76.82-.76.37 0 .7.31.82.76l3.04 9.4c4.77 0 8.05 1.95 8.05 1.95L17 11.71c-.2-.56-.53-.91-.98-.91H7.83c-.44 0-.76.35-.97.9L.02 30.31Zm42.37-5.97c0 1.64-2.05 2.62-4.88 2.62-1.85 0-2.5-.45-2.5-1.41 0-1 .8-1.49 2.65-1.49 1.67 0 3.09.03 4.73.23v.05Zm.03-2.04a21.37 21.37 0 0 0-4.37-.36c-5.32 0-7.82 1.25-7.82 4.18 0 3.04 1.71 4.2 5.68 4.2 3.35 0 5.63-.84 6.46-2.92h.14c-.03.5-.05 1-.05 1.4 0 1.07.18 1.16 1.06 1.16h4.15a16.9 16.9 0 0 1-.36-4c0-1.67.06-2.93.06-4.62 0-3.45-2.07-5.64-8.56-5.64-2.8 0-5.9.48-8.26 1.19.22.93.54 2.83.7 4.06 2.04-.96 4.95-1.37 7.2-1.37 3.11 0 3.97.71 3.97 2.15v.57Zm11.37 3c-.56.07-1.33.07-2.12.07-.83 0-1.6-.03-2.12-.1l-.02.58c0 2.85 1.87 4.52 8.45 4.52 6.2 0 8.2-1.64 8.2-4.55 0-2.74-1.33-4.09-7.2-4.39-4.58-.2-4.99-.7-4.99-1.28 0-.66.59-1 3.65-1 3.18 0 4.03.43 4.03 1.35v.2a46.13 46.13 0 0 1 4.24.03l.02-.55c0-3.36-2.8-4.46-8.2-4.46-6.08 0-8.13 1.49-8.13 4.39 0 2.6 1.64 4.23 7.48 4.48 4.3.14 4.77.62 4.77 1.28 0 .7-.7 1.03-3.71 1.03-3.47 0-4.35-.48-4.35-1.47v-.13Zm19.82-12.05a17.5 17.5 0 0 1-6.24 3.48c.03.84.03 2.4.03 3.24l1.5.02c-.02 1.63-.04 3.6-.04 4.9 0 3.04 1.6 5.32 6.58 5.32 2.1 0 3.5-.23 5.23-.6a43.77 43.77 0 0 1-.46-4.13c-1.03.34-2.34.53-3.78.53-2 0-2.82-.55-2.82-2.13 0-1.37 0-2.65.03-3.84 2.57.02 5.13.07 6.64.11-.02-1.18.03-2.9.1-4.04-2.2.04-4.65.07-6.68.07l.07-2.93h-.16Zm13.46 6.04a767.33 767.33 0 0 1 .07-3.18H82.6c.07 1.96.07 3.98.07 6.92 0 2.95-.03 4.99-.07 6.93h5.18c-.09-1.37-.11-3.68-.11-5.65 0-3.1 1.26-4 4.12-4 1.33 0 2.28.16 3.1.46.03-1.16.26-3.43.4-4.43-.86-.25-1.81-.41-2.96-.41-2.46-.03-4.26.98-5.1 3.38l-.17-.02Zm22.55 3.65c0 2.5-1.8 3.66-4.64 3.66-2.81 0-4.61-1.1-4.61-3.66s1.82-3.52 4.61-3.52c2.82 0 4.64 1.03 4.64 3.52Zm4.71-.11c0-4.96-3.87-7.18-9.35-7.18-5.5 0-9.23 2.22-9.23 7.18 0 4.94 3.49 7.59 9.21 7.59 5.77 0 9.37-2.65 9.37-7.6Z"
-            ></path><defs
-                ><linearGradient
-                    id="a"
-                    x1="6.33"
-                    x2="19.43"
-                    y1="40.8"
-                    y2="34.6"
-                    gradientUnits="userSpaceOnUse"
-                    ><stop stop-color="#D83333"></stop><stop
-                        offset="1"
-                        stop-color="#F041FF"></stop></linearGradient
-                ></defs
-            >
-        </svg>
-    </div>
-    <nav class="nav">
-        <input
-            id="icon-menu"
-            class="icon-menu"
-            type="checkbox"
-            aria-label="Abrir menú"
-        />
+    <a class="logo">
+        <Logo class="svg" />
+    </a>
+
+    <nav class="nav" role="navigation">
+        <input id="icon-menu" class="icon-menu" type="checkbox" />
         <label
             for="icon-menu"
             class="icon-svg"
             role="button"
             aria-controls="menu-open"
+            aria-expanded="false"
         >
             <svg
                 width="28"
@@ -63,50 +43,94 @@ import HeaderButton from "@components/HeaderButton.astro";
                 <path d="M4 12h16"></path>
                 <path d="M4 18h16"></path>
             </svg>
+            <span class="sr-only">Menú</span>
         </label>
 
         <ul id="menu-open" class="menu">
-            <li><HeaderButton id="inicio">INICIO</HeaderButton></li>
-            <li><HeaderButton id="services">SERVICIOS</HeaderButton></li>
-            <li><HeaderButton id="about">NOSOTROS</HeaderButton></li>
+            {
+                links.map((link) => (
+                    <li class="menu-item">
+                        <HeaderButton id={link.href}>{link.label}</HeaderButton>
+                    </li>
+                ))
+            }
+            <li class="menu-item contact-mobile">
+                <a href="#contacto" class="contact-btn">CONTACTO</a>
+            </li>
         </ul>
+        <div class="menu-cover" aria-hidden="true"></div>
     </nav>
+    <a href="#contacto" class="contact-btn contact-desktop">CONTACTO</a>
 </header>
 
 <style>
     .header {
         position: fixed;
         top: 0;
+        inset-inline: 0;
         z-index: 1000;
-        width: 100%;
-        background: white;
+        height: 80px;
+        background: #fff;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        min-height: 60px;
+        backdrop-filter: saturate(150%) blur(6px);
+        padding: 0 1rem;
+        gap: 1rem;
     }
-    .logo svg {
-        margin-left: 20px;
+
+    .contact-btn {
+        background-color: rgba(95, 137, 199, 1);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        margin-right: 5rem;
+        letter-spacing: 0.05rem;
+        border-radius: 9999px;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
     }
+    .contact-btn:hover {
+        background-color: #357abd;
+    }
+
+    .contact-desktop {
+        display: inline-block;
+    }
+    .contact-mobile {
+        display: none;
+    }
+
+    .logo {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    .logo .svg {
+        display: block;
+    }
+
     .nav {
         flex: 1;
         display: flex;
         justify-content: center;
         position: relative;
+        min-width: 0;
     }
+
     .menu {
         list-style: none;
         margin: 0;
         padding: 0;
-        gap: 10px;
     }
-    .menu li {
+    .menu-item {
         list-style: none;
     }
+
     .icon-menu {
         position: absolute;
-        width: 1px;
-        height: 1px;
+        inline-size: 1px;
+        block-size: 1px;
         margin: -1px;
         border: 0;
         padding: 0;
@@ -117,53 +141,100 @@ import HeaderButton from "@components/HeaderButton.astro";
 
     .icon-svg {
         display: none;
-        font-size: 2rem;
         background: none;
         border: none;
         cursor: pointer;
         margin-left: auto;
         margin-right: 10px;
         line-height: 0;
+        padding: 8px;
+        border-radius: 10px;
+    }
+    .icon-svg:focus-visible {
+        outline: 2px solid #4a90e2;
+        outline-offset: 2px;
+    }
+    .menu-cover {
+        display: none;
+    }
+
+    @media (max-width: 1200px) {
+        .contact-btn {
+            margin-right: 0rem;
+        }
     }
 
     @media (max-width: 768px) {
+        .header {
+            height: 60px;
+            padding: 0 0rem;
+        }
+        .contact-desktop {
+            display: none;
+        }
+        .contact-mobile {
+            display: list-item;
+        }
+        .logo .svg {
+            display: block;
+            height: 58px;
+            padding-left: 10px;
+        }
         .icon-svg {
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
-
         .menu {
             position: fixed;
-            inset: 60px 0 0 0;
-            height: 150px;
+            inset: 60px 0 auto 0;
+            height: auto;
             width: 100%;
-            display: none;
+            display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 20px;
-            background: white;
-            z-index: 1000;
+            gap: 14px;
+            background: #fff;
+            z-index: 1001;
             transform-origin: top;
             transition:
-                opacity 0.3s ease,
-                transform 0.3s ease;
+                opacity 0.25s ease,
+                transform 0.25s ease,
+                visibility 0.25s ease;
             opacity: 0;
             transform: translateY(-8px);
+            visibility: hidden;
+            padding: 16px 0 20px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
             text-align: center;
         }
-
+        .menu-cover {
+            position: fixed;
+            inset: 0;
+            top: 60px;
+            background: rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition:
+                opacity 0.25s ease,
+                visibility 0.25s ease;
+            display: block;
+        }
         .icon-menu:checked ~ .menu {
-            display: flex;
             opacity: 1;
             transform: translateY(0);
+            visibility: visible;
         }
-
-        .icon-svg {
-            padding: 8px;
-            margin-left: auto;
-            margin-right: 10px;
+        .icon-menu:checked ~ .menu-cover {
+            opacity: 1;
+            visibility: visible;
+        }
+        html:has(#icon-menu:checked) {
+            overflow: hidden;
+        }
+        .menu-contact {
+            padding-top: 4px;
         }
     }
 
@@ -171,17 +242,33 @@ import HeaderButton from "@components/HeaderButton.astro";
         .icon-svg {
             display: none;
         }
+
         .menu {
             display: flex;
             position: static;
             flex-direction: row;
             gap: 10px;
-            padding: 0;
+            padding: 0 12px 0 0;
             background: transparent;
             opacity: 1;
             transform: none;
             box-shadow: none;
             border: 0;
+            align-items: center;
         }
+        .menu-cover {
+            display: none;
+        }
+    }
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        border: 0;
+        clip: rect(0, 0, 0, 0);
+        overflow: hidden;
+        white-space: nowrap;
     }
 </style>

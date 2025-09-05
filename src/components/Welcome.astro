@@ -1,26 +1,19 @@
 ---
-import TheExperience from "@components/TheExperience.vue";
-import About from "src/pages/about.astro";
-import Services from "src/pages/services.astro";
+import Home from "@components/Home.vue";
+import About from "@components/About.astro";
+import Services from "@components/Services.astro";
+import OurProcess from "./OurProcess.astro";
 ---
 
-<div class="content">
-	<TheExperience client:visible />
-	<About />
-	<Services />
-</div>
+<script is:inline>
+  if (typeof window !== "undefined") {
+    window.onbeforeunload = () => {
+      window.scrollTo(0, 0);
+    };
+  }
+</script>
 
-<style>
-	.content {
-		margin-top: 80px;
-		place-items: center;
-		background-color: white;
-		font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova",
-			"Nimbus Sans", Arial, sans-serif;
-	}
-	@media (max-width: 768px) {
-		.content {
-			margin-top: 60px;
-		}
-	}
-</style>
+<Home client:load />
+<Services />
+<OurProcess />
+<About />

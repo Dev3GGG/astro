@@ -3,7 +3,7 @@ interface Props {
   id: string;
 }
 const { id } = Astro.props;
-const hash = `#${id}`;
+const hash = `${id}`;
 ---
 
 <a href={hash}>
@@ -20,22 +20,22 @@ const hash = `#${id}`;
     justify-content: center;
     width: auto;
     height: 30px;
-    margin-right: 50px;
-    letter-spacing: 0.1em;
+    margin-right: 30px;
+    letter-spacing: 0.05rem;
     text-decoration: none;
     color: black;
     opacity: 0.6;
-    font-size: 20px;
-    font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova",
-      "Nimbus Sans", Arial, sans-serif;
+    font-size: 16px;
   }
   a:hover {
     text-decoration: underline;
-    text-decoration-color: #4d78d3;
+    text-decoration-color: rgba(95, 137, 199, 1);
     text-underline-offset: 10px;
   }
   @media (max-width: 768px) {
     a {
+      height: 20px;
+      font-size: 14px;
       margin-right: 0px;
     }
   }

@@ -1,10 +1,17 @@
 ---
+import Footer from "@components/Footer.astro";
 import Nav from "@components/Nav.astro";
 
 interface Props {
 	title: string;
 }
 const { title } = Astro.props;
+const links = [
+	{ label: "INICIO", href: "#home" },
+	{ label: "SERVICIOS", href: "#services" },
+	{ label: "CÓMO TRABAJAMOS", href: "#our-process" },
+	{ label: "NOSOTROS", href: "#about" },
+];
 ---
 
 <!doctype html>
@@ -12,15 +19,16 @@ const { title } = Astro.props;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href="/src/assets/nizana.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
 	<body>
-		<Nav />
+		<Nav links={links} />
 		<main>
 			<slot />
 		</main>
+		<Footer links={links} />
 	</body>
 </html>
 <script lang="ts">
@@ -58,15 +66,37 @@ const { title } = Astro.props;
 			}
 		});
 	});
+	document.addEventListener("DOMContentLoaded", () => {
+		const toggle = document.getElementById("icon-menu");
+		const menuLinks = document.querySelectorAll("#menu-open a");
+
+		menuLinks.forEach((link) => {
+			link.addEventListener("click", () => {
+				if (toggle) toggle.checked = false;
+			});
+		});
+	});
 </script>
 
-<style>
+<style is:global>
 	html,
 	body {
+		font-family: "Montserrat Variable", sans-serif;
+		font-weight: 400;
 		scroll-padding-top: 60px;
 		padding: 0;
 		margin: 0;
 		width: 100%;
 		height: 100%;
+	}
+	main {
+		margin-top: 100px;
+		place-items: center;
+		background-color: white;
+	}
+	@media (max-width: 768px) {
+		main {
+			margin-top: 80px;
+		}
 	}
 </style>

@@ -27,7 +27,7 @@ onMounted(async () => {
         x: 0.7,
         y: 0.7,
         z: 0.8,
-        duration: 1.6,
+        duration: 2,
         ease: 'power2.out'
     }, 0)
     tl.to(model.rotation, {
