@@ -5,311 +5,471 @@ import image3 from "../assets/image/image3.jpeg";
 import image4 from "../assets/image/image4.jpg";
 
 const slides = [
-    { name: "", texto: "", img: image1 },
+    {
+        name: "HISTORIA",
+        texto: `Desde nuestros inicios hemos apostado por el diseño centrado en las personas. 
+            Empezamos como un pequeño estudio y evolucionamos a un equipo multidisciplinario 
+            que combina estrategia, branding y producto digital.`,
+        img: image1,
+    },
     {
         name: "MISIÓN",
         texto: `Nos guiamos por la innovación, la calidad y la excelencia, 
-        trabajando con compromiso, responsabilidad y transparencia; valoramos la colaboración,
-        la cercanía y el aprendizaje constante,
-        siempre creciendo junto a nuestros clientes y manteniendo nuestra identidad.`,
+            trabajando con compromiso, responsabilidad y transparencia; 
+            valoramos la colaboración, la cercanía y el aprendizaje constante,
+            siempre creciendo junto a nuestros clientes y manteniendo nuestra identidad.`,
         img: image2,
     },
     {
         name: "VISIÓN",
         texto: `Convertirnos en un referente en el desarrollo de software,
-        reconocido por nuestra calidad, innovación y excelencia técnica.
-        Queremos ser un estudio que inspire confianza y creatividad,
-        creciendo junto a nuestros clientes y consolidándonos como un aliado estratégico para pequeñas 
-        y medianas empresas, transformando pequeñas ideas en grandes soluciones.`,
+            reconocido por nuestra calidad, innovación y excelencia técnica.
+            Queremos ser un estudio que inspire confianza y creatividad,
+            creciendo junto a nuestros clientes y consolidándonos como un aliado estratégico para pequeñas 
+            y medianas empresas, transformando pequeñas ideas en grandes soluciones.`,
         img: image3,
     },
     {
         name: "VALORES",
         texto: `Nos guiamos por la innovación, la calidad y la excelencia,
-        trabajando con compromiso, responsabilidad y transparencia; valoramos la colaboración, 
-        la cercanía y el aprendizaje constante, 
-        siempre creciendo junto a nuestros clientes y manteniendo nuestra identidad.`,
+            trabajando con compromiso, responsabilidad y transparencia; 
+            valoramos la colaboración, la cercanía y el aprendizaje constante, 
+            siempre creciendo junto a nuestros clientes y manteniendo nuestra identidad.`,
         img: image4,
     },
 ];
 ---
 
-<section class="carousel fade-up" id="about">
-    <div class="list">
-        {
-            slides.map((slide) => (
-                <div
-                    class="item"
-                    style={`background-image: url(${slide.img.src});`}
+<section class="accordion fade-up" id="about">
+    {
+        slides.map((s, i) => (
+            <article
+                class={`pane ${i === 0 ? "is-active" : ""}`}
+                data-index={i + 1}
+                style={`--bg-img: url(${s.img.src}); --content-h: 0px;`}
+            >
+                <button
+                    class="tab-btn"
+                    role="tab"
+                    aria-selected={i === 0 ? "true" : "false"}
+                    aria-controls={`panel-${i}`}
+                    data-index={i + 1}
                 >
-                    <div class="content">
-                        <div class="name">{slide.name}</div>
-                        <div class="des">{slide.texto}</div>
+                    <span>{s.name}</span>
+                    <span class="dot" aria-hidden="true" />
+                </button>
+
+                <div
+                    id={`panel-${i}`}
+                    class="content"
+                    role="tabpanel"
+                    aria-labelledby={`pane-${i}`}
+                >
+                    <div class="content-inner">
+                        <div class="card">
+                            <h3>{s.name}</h3>
+                            <p>{s.texto}</p>
+                            <div class="underline" />
+                        </div>
                     </div>
                 </div>
-            ))
-        }
-    </div>
-    <div class="arrows">
-        <button class="prev">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24px"
-                viewBox="0 -960 960 960"
-                width="28px"
-                fill="#FFFFFF"
-                ><path d="M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z"
-                ></path></svg
-            >
-        </button>
-        <button class="next"
-            ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="28px"
-                viewBox="0 -960 960 960"
-                width="24px"
-                fill="#FFFFFF"
-                ><path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"
-                ></path></svg
-            ></button
-        >
-    </div>
-    <div class="timeRunning"></div>
+            </article>
+        ))
+    }
 </section>
-<script lang="ts">
-    var nextBtn = document.querySelector(".next"),
-        prevBtn = document.querySelector(".prev"),
-        carousel = document.querySelector(".carousel"),
-        list = document.querySelector(".list"),
-        item = document.querySelectorAll(".item"),
-        runningTime = document.querySelector(".carousel .timeRunning");
 
-    let timeRunning = 4000;
-    let timeAutoNext = 7000;
+<script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+        const root = document.documentElement;
+        const panes = Array.from(document.querySelectorAll(".pane"));
+        const tabs = Array.from(document.querySelectorAll(".tab-btn"));
 
-    nextBtn.onclick = function () {
-        showSlider("next");
-    };
+        let currentIndex = 1;
+        let intervalId;
 
-    prevBtn.onclick = function () {
-        showSlider("prev");
-    };
-
-    let runTimeOut;
-
-    let runNextAuto = setTimeout(() => {
-        nextBtn.click();
-    }, timeAutoNext);
-
-    function resetTimeAnimation() {
-        runningTime.style.animation = "none";
-        runningTime.offsetHeight;
-        runningTime.style.animation = null;
-        runningTime.style.animation = "runningTime 7s linear 1 forwards";
-    }
-
-    function showSlider(type) {
-        let sliderItemsDom = list.querySelectorAll(".carousel .list .item");
-        if (type === "next") {
-            list.appendChild(sliderItemsDom[0]);
-            carousel.classList.add("next");
-        } else {
-            list.prepend(sliderItemsDom[sliderItemsDom.length - 1]);
-            carousel.classList.add("prev");
+        function measureAndSetHeight(pane, active) {
+            const content = pane.querySelector(".content");
+            const inner = pane.querySelector(".content-inner");
+            if (!content || !inner) return;
+            if (active) {
+                const h = inner.scrollHeight;
+                pane.style.setProperty("--content-h", `${h}px`);
+            } else {
+                pane.style.setProperty("--content-h", `0px`);
+            }
         }
 
-        clearTimeout(runTimeOut);
+        function setActive(index) {
+            currentIndex = index;
 
-        runTimeOut = setTimeout(() => {
-            carousel.classList.remove("next");
-            carousel.classList.remove("prev");
-        }, timeRunning);
+            panes.forEach((p, i) => {
+                const active = i === index - 1;
+                p.classList.toggle("is-active", active);
 
-        clearTimeout(runNextAuto);
-        runNextAuto = setTimeout(() => {
-            nextBtn.click();
-        }, timeAutoNext);
+                const btn = p.querySelector(".tab-btn");
+                if (btn)
+                    btn.setAttribute(
+                        "aria-selected",
+                        active ? "true" : "false",
+                    );
 
-        resetTimeAnimation();
-    }
+                const underline = p.querySelector(".underline");
+                if (underline) {
+                    underline.classList.remove("anim");
+                    void underline.offsetWidth;
+                    if (active) underline.classList.add("anim");
+                }
 
-    resetTimeAnimation();
+                measureAndSetHeight(p, active);
+            });
+
+            panes.forEach((_, i) => {
+                root.style.setProperty(
+                    `--col${i + 1}`,
+                    index === i + 1 ? "3fr" : "1fr",
+                );
+            });
+        }
+
+        function startAutoPlay() {
+            if (intervalId) clearInterval(intervalId);
+            intervalId = window.setInterval(() => {
+                const next =
+                    currentIndex === panes.length ? 1 : currentIndex + 1;
+                setActive(next);
+            }, 7000);
+        }
+
+        tabs.forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                setActive(parseInt(btn.dataset.index || "1", 10));
+                startAutoPlay();
+            });
+        });
+
+        panes.forEach((pane, idx) => {
+            pane.style.cursor = "pointer";
+            pane.addEventListener("click", (e) => {
+                if (e.target.closest("a, button, input, textarea, select"))
+                    return;
+                setActive(idx + 1);
+                startAutoPlay();
+            });
+
+            const ro = new ResizeObserver(() => {
+                const active = pane.classList.contains("is-active");
+                if (active) measureAndSetHeight(pane, true);
+            });
+            const inner = pane.querySelector(".content-inner");
+            if (inner) ro.observe(inner);
+        });
+
+        setActive(1);
+        startAutoPlay();
+
+        window.addEventListener("resize", () => {
+            panes.forEach((p) => {
+                const active = p.classList.contains("is-active");
+                if (active) measureAndSetHeight(p, true);
+            });
+        });
+    });
 </script>
+
 <style>
-    .carousel {
-        width: 100vw;
-        height: 100vh;
-        margin-top: -50px;
-        overflow: hidden;
+    :root {
+        --col1: 3fr;
+        --col2: 1fr;
+        --col3: 1fr;
+        --col4: 1fr;
+        --dur-fast: 0.22s;
+        --dur-med: 0.35s;
+        --dur-slow: 0.6s;
+        --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .accordion {
+        margin: 10px;
+        width: min(1300px, 100%);
+        min-height: 420px;
+        display: grid;
+        grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4);
+        gap: 10px;
+        align-items: stretch;
+        transition: grid-template-columns var(--dur-med) var(--ease-smooth);
+    }
+
+    .pane {
+        --content-h: 0px;
         position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+        background: #0b1222;
+        color: #eef2ff;
+        isolation: isolate;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        display: grid;
+        grid-template-rows: auto 1fr;
     }
-
-    .carousel .list .item {
-        width: 180px;
-        height: 250px;
+    .pane::before {
+        content: "";
         position: absolute;
-        top: 80%;
-        transform: translateY(-70%);
-        left: 70%;
-        border-radius: 20px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-        background-position: 50% 50%;
+        inset: 0;
+        z-index: 0;
+        background-image: var(--bg-img);
         background-size: cover;
-        z-index: 100;
-        transition: 1s;
+        background-position: center;
+        opacity: 0.55;
+        transition:
+            opacity var(--dur-med) var(--ease-smooth),
+            transform var(--dur-med) var(--ease-smooth);
+    }
+    .pane.is-active::before {
+        opacity: 0.75;
     }
 
-    .carousel .list .item:nth-child(1),
-    .carousel .list .item:nth-child(2) {
-        top: 0;
-        left: 0;
-        transform: translate(0, 0);
-        border-radius: 0;
-        width: 100%;
+    .tab-btn {
+        position: relative;
+        z-index: 1;
+        background: transparent;
+        color: #fff;
+        padding: 14px 16px;
+        cursor: pointer;
+        border: none;
+        text-align: left;
+        font-weight: 700;
+        font-size: clamp(12px, 1.6vw, 14px);
+        letter-spacing: 0.3px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition:
+            opacity var(--dur-slow) var(--ease-smooth),
+            visibility var(--dur-slow) step-end;
+    }
+    .tab-btn .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: transparent;
+        border: 1px solid #dbe3ff;
+    }
+
+    .pane:not(.is-active) .tab-btn {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding: 12px 10px;
         height: 100%;
     }
 
-    .carousel .list .item:nth-child(3) {
-        left: 67%;
-    }
-
-    .carousel .list .item:nth-child(4) {
-        left: calc(67% + 200px);
-    }
-
-    .carousel .list .item:nth-child(5) {
-        left: calc(67% + 400px);
-    }
-
-    .carousel .list .item:nth-child(6) {
-        left: calc(67% + 600px);
-    }
-
-    .carousel .list .item:nth-child(n + 7) {
-        left: calc(67% + 800px);
-        opacity: 0;
-    }
-
-    .list .item .content {
-        position: absolute;
-        top: 50%;
-        left: 100px;
-        transform: translateY(-50%);
-        width: 400px;
-        text-align: left;
-        color: #fff;
-        display: none;
-    }
-
-    .list .item:nth-child(2) .content {
-        display: block;
-    }
-
-    .content .name {
-        font-size: 100px;
-        text-transform: uppercase;
-        font-weight: bold;
-        line-height: 1;
-        text-shadow: 3px 4px 4px rgba(255, 255, 255, 0.8);
-        opacity: 0;
-        animation: animate 1s ease-in-out 0.6s 1 forwards;
-    }
-
-    .content .des {
-        margin-top: 10px;
-        margin-bottom: 20px;
-        font-size: 18px;
-        margin-left: 5px;
-        opacity: 0;
-        animation: animate 1s ease-in-out 0.9s 1 forwards;
-    }
-
-    @keyframes animate {
-        from {
-            opacity: 0;
-            transform: translate(0, 100px);
-            filter: blur(33px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translate(0);
-            filter: blur(0);
-        }
-    }
-
-    .arrows {
-        position: absolute;
-        top: 80%;
-        right: 52%;
-        z-index: 100;
-        width: 300px;
-        max-width: 30%;
+    .content {
+        position: relative;
         display: flex;
-        gap: 10px;
         align-items: center;
+        justify-content: center;
+        z-index: 1;
+        padding: 0 20px 20px;
+        overflow: hidden;
+        height: var(--content-h);
+        transition:
+            height var(--dur-med) var(--ease-smooth),
+            padding var(--dur-med) var(--ease-smooth);
+    }
+    .content-inner {
+        opacity: 0;
+        transform: translateY(10px);
+        transition:
+            opacity var(--dur-med) var(--ease-smooth),
+            transform var(--dur-med) var(--ease-smooth);
+    }
+    .pane.is-active .content {
+        padding: 30px;
+    }
+    .pane.is-active .content-inner {
+        opacity: 1;
+        transform: translateY(0);
     }
 
-    .arrows button {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: none;
-        outline: none;
-        font-size: 16px;
-        font-weight: bold;
-        transition: 0.5s;
-        cursor: pointer;
-        background: transparent;
+    .pane .tab-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+    .pane.is-active .tab-btn {
+        opacity: 0;
+        visibility: hidden;
     }
 
-    .arrows button svg:hover {
-        transform: scale(1.3);
+    .card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 14px;
+        padding: 22px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .card h3 {
+        margin: 0 0 8px;
+        font-size: clamp(18px, 2vw, 22px);
+        color: #dbe3ff;
+    }
+    .card p {
+        margin: 0 0 12px;
+        line-height: 1.55;
+        font-size: clamp(14px, 1.8vw, 16px);
     }
 
-    .carousel .timeRunning {
+    .pane.is-active .card {
+        animation: cardIn var(--dur-slow) var(--ease-smooth) both;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+    }
+    .pane.is-active .card::after {
+        content: "";
         position: absolute;
-        z-index: 1000;
-        width: 0%;
-        height: 4px;
-        background-color: rgba(95, 137, 199, 1);
-        left: 0;
-        top: 0;
-        animation: runningTime 7s linear 1 forwards;
+        inset: -20% -40%;
+        background: linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.18) 45%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        filter: blur(8px);
+        pointer-events: none;
+        animation: glowSweep 0.7s var(--ease-smooth) 0.09s both;
+    }
+    .pane.is-active .card h3 {
+        animation: fadeUp var(--dur-med) var(--ease-smooth) both;
+    }
+    .pane.is-active .card p {
+        animation: fadeUp var(--dur-med) var(--ease-smooth) 90ms both;
     }
 
-    @keyframes runningTime {
+    .underline {
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #7c8bd6, #7c8bd6);
+        border-radius: 10px;
+    }
+    .underline.anim {
+        animation: fillBar 7s linear forwards;
+    }
+    @keyframes fillBar {
         from {
-            width: 0%;
+            width: 0;
         }
         to {
             width: 100%;
         }
     }
-
-    @media screen and (max-width: 999px) {
-        .list .item .content {
-            width: 300px;
-            left: 50px;
+    @keyframes cardIn {
+        0% {
+            opacity: 0;
+            transform: translateY(12px) scale(0.965);
+            filter: blur(6px);
         }
-
-        .content .name {
-            font-size: 70px;
+        60% {
+            opacity: 1;
+            transform: translateY(0) scale(1.015);
+            filter: blur(1.5px);
         }
-
-        .content .des {
-            font-size: 16px;
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+    }
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes glowSweep {
+        0% {
+            transform: translateX(-120%) rotate(8deg);
+            opacity: 0;
+        }
+        30% {
+            opacity: 0.6;
+        }
+        100% {
+            transform: translateX(140%) rotate(8deg);
+            opacity: 0;
         }
     }
 
-    @media screen and (max-width: 690px) {
-        .list .item .content {
-            width: 250px;
-            top: 30%;
+    @media (max-width: 1200px) {
+        .accordion {
+            gap: 10px;
         }
+        :root {
+            --col1: 2.5fr;
+            --col2: 1fr;
+            --col3: 1fr;
+            --col4: 1fr;
+        }
+    }
 
-        .content .name {
-            font-size: 45px;
+    @media (max-width: 900px) {
+        .accordion {
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: minmax(260px, auto);
+        }
+        .pane:not(.is-active) .tab-btn {
+            writing-mode: initial;
+            transform: none;
+            height: auto;
+            align-items: center;
+            padding: 14px 16px;
+        }
+        .pane.is-active .tab-btn {
+            opacity: 1;
+            visibility: visible;
+        }
+        .pane.is-active .content {
+            padding: 14px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .accordion {
+            display: block;
+            gap: 0;
+        }
+        .pane {
+            margin: 10px;
+        }
+        .pane::before {
+            opacity: 0.6;
+        }
+        .tab-btn {
+            font-size: 15px;
+        }
+        .card {
+            padding: 18px 16px;
+        }
+        .pane.is-active .content {
+            padding: 14px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .accordion,
+        .pane::before,
+        .tab-btn,
+        .content,
+        .content-inner {
+            transition: none !important;
+            animation: none !important;
         }
     }
 </style>

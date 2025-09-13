@@ -7,10 +7,12 @@ type Particle = {
     pos: THREE.Vector3
     vel: THREE.Vector2
     mat: 0 | 1
+    radius: number
 }
 
 const bounds = { x: 0.8, y: 0.35 }
-const radius = 0.09
+const maxRadius = 0.08
+const minRadius = 0.04
 const count = 5
 const restitution = 0.98
 
@@ -36,9 +38,7 @@ function createRadialTexture(
     const g = ctx.createRadialGradient(r, r, 0, r, r, r)
     g.addColorStop(0.0, inner)
     g.addColorStop(0.35, mid)
-    const outerColor = outerAlpha < 1
-        ? `rgba(${hexToRgb(outer)}, ${outerAlpha})`
-        : outer
+    const outerColor = outerAlpha < 1 ? `rgba(${hexToRgb(outer)}, ${outerAlpha})` : outer
     g.addColorStop(1.0, outerColor)
 
     ctx.clearRect(0, 0, size, size)
@@ -68,30 +68,27 @@ function randomVel(): number {
     return Math.random() > 0.5 ? v : -v
 }
 
-function randomPosInBounds(): THREE.Vector3 {
-    return new THREE.Vector3(
-        THREE.MathUtils.randFloat(-bounds.x + radius, bounds.x - radius),
-        THREE.MathUtils.randFloat(-bounds.y + radius, bounds.y - radius),
-        0
-    )
-}
-
 function spawnNonOverlapping(n: number): Particle[] {
     const arr: Particle[] = []
-    const minDist = radius * 2
     for (let i = 0; i < n; i++) {
+        const radius = THREE.MathUtils.lerp(minRadius, maxRadius, Math.random())
         let p: THREE.Vector3
         let attempts = 0
         do {
-            p = randomPosInBounds()
+            p = new THREE.Vector3(
+                THREE.MathUtils.randFloat(-bounds.x + radius, bounds.x - radius),
+                THREE.MathUtils.randFloat(-bounds.y + radius, bounds.y - radius),
+                0
+            )
             attempts++
-            if (attempts > 500) break
-        } while (arr.some((q) => p.distanceTo(q.pos) < minDist))
+            if (attempts > 800) break
+        } while (arr.some((q) => p.distanceTo(q.pos) < radius + q.radius))
 
         arr.push({
             pos: p,
             vel: new THREE.Vector2(randomVel(), randomVel()),
             mat: (Math.random() < 0.5 ? 0 : 1) as 0 | 1,
+            radius
         })
     }
     return arr
@@ -108,14 +105,12 @@ onMounted(() => {
         map: texPurple,
         transparent: true,
         depthWrite: false,
-        blending: THREE.NormalBlending,
+        blending: THREE.NormalBlending
     })
-
     materials.value = [matBlue, matPurple]
 
-    setTimeout(() => {
-        geometry.value = new THREE.SphereGeometry(radius, 32, 32)
-    }, 1000);
+    geometry.value = new THREE.SphereGeometry(1, 32, 32)
+
     particles.value = spawnNonOverlapping(count)
 })
 
@@ -126,24 +121,23 @@ onBeforeUnmount(() => {
 })
 
 function handleWallBounce(p: Particle) {
-    if (p.pos.x + radius > bounds.x) {
-        p.pos.x = bounds.x - radius
+    if (p.pos.x + p.radius > bounds.x) {
+        p.pos.x = bounds.x - p.radius
         p.vel.x *= -1
-    } else if (p.pos.x - radius < -bounds.x) {
-        p.pos.x = -bounds.x + radius
+    } else if (p.pos.x - p.radius < -bounds.x) {
+        p.pos.x = -bounds.x + p.radius
         p.vel.x *= -1
     }
-    if (p.pos.y + radius > bounds.y) {
-        p.pos.y = bounds.y - radius
+    if (p.pos.y + p.radius > bounds.y) {
+        p.pos.y = bounds.y - p.radius
         p.vel.y *= -1
-    } else if (p.pos.y - radius < -bounds.y) {
-        p.pos.y = -bounds.y + radius
+    } else if (p.pos.y - p.radius < -bounds.y) {
+        p.pos.y = -bounds.y + p.radius
         p.vel.y *= -1
     }
 }
 
 function resolveParticleCollisions(ps: Particle[]) {
-    const minDist = radius * 2
     for (let i = 0; i < ps.length; i++) {
         for (let j = i + 1; j < ps.length; j++) {
             const a = ps[i], b = ps[j]
@@ -159,19 +153,19 @@ function resolveParticleCollisions(ps: Particle[]) {
                 dist = eps
             }
 
+            const minDist = a.radius + b.radius
             if (dist < minDist) {
                 const overlap = (minDist - dist) / 2
                 const nx = dx / dist, ny = dy / dist
                 a.pos.x -= nx * overlap; a.pos.y -= ny * overlap
                 b.pos.x += nx * overlap; b.pos.y += ny * overlap
-
                 const rvx = b.vel.x - a.vel.x
                 const rvy = b.vel.y - a.vel.y
                 const vn = rvx * nx + rvy * ny
                 if (vn < 0) {
-                    const j = -(1 + restitution) * vn / 2
-                    a.vel.x -= j * nx; a.vel.y -= j * ny
-                    b.vel.x += j * nx; b.vel.y += j * ny
+                    const jImp = -(1 + restitution) * vn / 2
+                    a.vel.x -= jImp * nx; a.vel.y -= jImp * ny
+                    b.vel.x += jImp * nx; b.vel.y += jImp * ny
                 }
             }
         }
@@ -192,12 +186,21 @@ onLoop(() => {
 </script>
 
 <template>
-    <TresCanvas>
+    <TresCanvas :dpr="[1, 2]" :alpha="true">
         <TresPerspectiveCamera :position="[0, 0, 1]" :look-at="[0, 0, 0]" />
         <TresAmbientLight :intensity="0.8" />
         <TresDirectionalLight :position="[1, 1, 1]" :intensity="1.2" />
 
-        <TresMesh v-for="(p, i) in particles" :key="i" :position="[p.pos.x, p.pos.y, p.pos.z]"
-            v-if="geometry && materials.length" :geometry="geometry" :material="materials[p.mat]" />
+        <TresMesh v-for="(p, i) in particles" :key="i" v-if="geometry && materials.length"
+            :position="[p.pos.x, p.pos.y, p.pos.z]" :scale="[p.radius, p.radius, p.radius]" :geometry="geometry"
+            :material="materials[p.mat]" />
     </TresCanvas>
 </template>
+
+<style>
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+</style>

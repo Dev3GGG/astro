@@ -92,21 +92,21 @@ onBeforeUnmount(() => {
   border-radius: 28px;
   margin-bottom: 60px;
   outline: 1px solid #e9ecf5;
-  padding: clamp(16px, 3vw, 28px) clamp(16px, 4vw, 36px);
+  padding: clamp(20px, 3vw, 28px) clamp(20px, 4vw, 36px);
   background: lch(47.9% 8.61 273.31 / 0.118);
   overflow: hidden;
   padding-block-end: clamp(20px, 4vw, 40px);
-  padding-block-start: 16px;
+  padding-block-start: 20px;
   padding-inline: clamp(12px, 3vw, 32px);
 }
 
 .bg-3d {
   position: absolute;
-  top: 0;
+  top: -40px;
   left: 0;
   right: 0;
   width: 100%;
-  height: clamp(630px, 55vw, 960px);
+  min-height: clamp(650px, 65vw, 960px);
   z-index: 0;
   pointer-events: none !important;
 }
@@ -188,5 +188,6 @@ onBeforeUnmount(() => {
   background: transparent;
   position: relative;
   z-index: 0;
+  pointer-events: none !important;
 }
 </style>
