@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   width: 100%;
-  min-height: clamp(650px, 65vw, 960px);
+  min-height: clamp(630px, 65vw, 960px);
   z-index: 0;
   pointer-events: none !important;
 }
@@ -124,6 +124,10 @@ onBeforeUnmount(() => {
 @media (max-width: 1024px) {
   .tres-container {
     margin: 40px 20px 40px 20px;
+  }
+
+  .bg-3d {
+    top: 60px;
   }
 
   .grid {
@@ -172,10 +176,6 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
-  .bg-3d {
-    top: 60px;
-  }
-
   .object {
     min-height: clamp(240px, 55vw, 420px);
   }

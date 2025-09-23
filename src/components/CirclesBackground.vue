@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TresCanvas, useRenderLoop } from '@tresjs/core'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, reactive } from 'vue'
 import * as THREE from 'three'
 
 type Particle = {
@@ -10,7 +10,7 @@ type Particle = {
     radius: number
 }
 
-const bounds = { x: 0.8, y: 0.35 }
+const bounds = reactive({ x: 0.75, y: 0.33 })
 const maxRadius = 0.08
 const minRadius = 0.04
 const count = 5
@@ -18,43 +18,54 @@ const restitution = 0.98
 
 const textures = ref<THREE.Texture[]>([])
 const materials = ref<THREE.MeshBasicMaterial[]>([])
-const geometry = ref<THREE.SphereGeometry | null>(null)
+const geometry = ref<THREE.CircleGeometry | null>(null)
 
 const particles = ref<Particle[]>([])
 
-function createRadialTexture(
+function update_bounds() {
+    if (window.innerWidth <= 600) {
+        bounds.x = 0.3
+        bounds.y = 0.46
+    } else {
+        bounds.x = 0.75
+        bounds.y = 0.33
+    }
+}
+
+function create_linear_texture(
     size = 512,
-    inner = '#090979',
-    mid = '#090979',
-    outer = '#00D4FF',
-    outerAlpha = 1
+    startColor = '#090979',
+    midColor = '#090979',
+    endColor = '#00D4FF',
+    endAlpha = 1
 ): THREE.Texture {
     const canvas = document.createElement('canvas')
     canvas.width = size
     canvas.height = size
     const ctx = canvas.getContext('2d')!
 
-    const r = size / 2
-    const g = ctx.createRadialGradient(r, r, 0, r, r, r)
-    g.addColorStop(0.0, inner)
-    g.addColorStop(0.35, mid)
-    const outerColor = outerAlpha < 1 ? `rgba(${hexToRgb(outer)}, ${outerAlpha})` : outer
-    g.addColorStop(1.0, outerColor)
+    const g = ctx.createLinearGradient(0, 0, size, size)
+    
+    g.addColorStop(0.0, startColor)
+    g.addColorStop(0.5, midColor)
+
+    const finalEndColor = endAlpha < 1 ? `rgba(${hex_to_rgb(endColor)}, ${endAlpha})` : endColor
+    g.addColorStop(1.0, finalEndColor)
 
     ctx.clearRect(0, 0, size, size)
     ctx.fillStyle = g
     ctx.fillRect(0, 0, size, size)
 
-    const tex = new THREE.CanvasTexture(canvas)
-    tex.colorSpace = THREE.SRGBColorSpace
-    tex.minFilter = THREE.LinearFilter
-    tex.magFilter = THREE.LinearFilter
-    tex.generateMipmaps = false
-    tex.needsUpdate = true
-    return tex
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.minFilter = THREE.LinearFilter
+    texture.magFilter = THREE.LinearFilter
+    texture.generateMipmaps = false
+    texture.needsUpdate = true
+    return texture
 }
 
-function hexToRgb(hex: string) {
+function hex_to_rgb(hex: string) {
     const c = hex.replace('#', '')
     const bigint = parseInt(c, 16)
     const r = (bigint >> 16) & 255
@@ -63,12 +74,12 @@ function hexToRgb(hex: string) {
     return `${r}, ${g}, ${b}`
 }
 
-function randomVel(): number {
+function movement_speed(): number {
     const v = THREE.MathUtils.randFloat(0.0002, 0.0006)
     return Math.random() > 0.5 ? v : -v
 }
 
-function spawnNonOverlapping(n: number): Particle[] {
+function create_particles(n: number): Particle[] {
     const arr: Particle[] = []
     for (let i = 0; i < n; i++) {
         const radius = THREE.MathUtils.lerp(minRadius, maxRadius, Math.random())
@@ -86,7 +97,7 @@ function spawnNonOverlapping(n: number): Particle[] {
 
         arr.push({
             pos: p,
-            vel: new THREE.Vector2(randomVel(), randomVel()),
+            vel: new THREE.Vector2(movement_speed(), movement_speed()),
             mat: (Math.random() < 0.5 ? 0 : 1) as 0 | 1,
             radius
         })
@@ -95,8 +106,10 @@ function spawnNonOverlapping(n: number): Particle[] {
 }
 
 onMounted(() => {
-    const texBlue = createRadialTexture(512, '#1D4ED8', '#2563EB', '#60A5FA', 1)
-    const texPurple = createRadialTexture(512, '#C7D2FF', '#A78BFA', '#592F94', 0.7)
+    update_bounds()
+    window.addEventListener('resize', update_bounds)
+    const texBlue = create_linear_texture(512, '#60A5FA', '#60A5FA', '#1D4ED7', 1)
+    const texPurple = create_linear_texture(512, '#592F94', '#A78BFA', '#C7D2FF', 1)
 
     textures.value = [texBlue, texPurple]
 
@@ -109,38 +122,39 @@ onMounted(() => {
     })
     materials.value = [matBlue, matPurple]
 
-    geometry.value = new THREE.SphereGeometry(1, 32, 32)
+    geometry.value = new THREE.CircleGeometry(1, 32, 32)
 
-    particles.value = spawnNonOverlapping(count)
+    particles.value = create_particles(count)
 })
 
 onBeforeUnmount(() => {
+    window.removeEventListener('resize', update_bounds)
     geometry.value?.dispose()
     materials.value.forEach((m) => m.dispose())
     textures.value.forEach((t) => t.dispose())
 })
 
-function handleWallBounce(p: Particle) {
-    if (p.pos.x + p.radius > bounds.x) {
-        p.pos.x = bounds.x - p.radius
-        p.vel.x *= -1
-    } else if (p.pos.x - p.radius < -bounds.x) {
-        p.pos.x = -bounds.x + p.radius
-        p.vel.x *= -1
+function particle_rebound(particle: Particle) {
+    if (particle.pos.x + particle.radius > bounds.x) {
+        particle.pos.x = bounds.x - particle.radius
+        particle.vel.x *= -1
+    } else if (particle.pos.x - particle.radius < -bounds.x) {
+        particle.pos.x = -bounds.x + particle.radius
+        particle.vel.x *= -1
     }
-    if (p.pos.y + p.radius > bounds.y) {
-        p.pos.y = bounds.y - p.radius
-        p.vel.y *= -1
-    } else if (p.pos.y - p.radius < -bounds.y) {
-        p.pos.y = -bounds.y + p.radius
-        p.vel.y *= -1
+    if (particle.pos.y + particle.radius > bounds.y) {
+        particle.pos.y = bounds.y - particle.radius
+        particle.vel.y *= -1
+    } else if (particle.pos.y - particle.radius < -bounds.y) {
+        particle.pos.y = -bounds.y + particle.radius
+        particle.vel.y *= -1
     }
 }
 
-function resolveParticleCollisions(ps: Particle[]) {
-    for (let i = 0; i < ps.length; i++) {
-        for (let j = i + 1; j < ps.length; j++) {
-            const a = ps[i], b = ps[j]
+function particle_collision(particle: Particle[]) {
+    for (let i = 0; i < particle.length; i++) {
+        for (let j = i + 1; j < particle.length; j++) {
+            const a = particle[i], b = particle[j]
             const dx = b.pos.x - a.pos.x
             const dy = b.pos.y - a.pos.y
             let dist = Math.hypot(dx, dy)
@@ -174,14 +188,14 @@ function resolveParticleCollisions(ps: Particle[]) {
 
 const { onLoop } = useRenderLoop()
 onLoop(() => {
-    const ps = particles.value
-    for (let i = 0; i < ps.length; i++) {
-        const p = ps[i]
+    const particle = particles.value
+    for (let i = 0; i < particle.length; i++) {
+        const p = particle[i]
         p.pos.x += p.vel.x
         p.pos.y += p.vel.y
     }
-    resolveParticleCollisions(ps)
-    for (let i = 0; i < ps.length; i++) handleWallBounce(ps[i])
+    particle_collision(particle)
+    for (let i = 0; i < particle.length; i++) particle_rebound(particle[i])
 })
 </script>
 
