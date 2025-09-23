@@ -25,7 +25,7 @@ const particles = ref<Particle[]>([])
 function update_bounds() {
     if (window.innerWidth <= 600) {
         bounds.x = 0.3
-        bounds.y = 0.46
+        bounds.y = 0.47
     } else {
         bounds.x = 0.75
         bounds.y = 0.33
