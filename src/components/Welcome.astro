@@ -2,7 +2,8 @@
 import Home from "@components/Home.vue";
 import About from "@components/About.astro";
 import Services from "@components/Services.astro";
-import OurProcess from "./OurProcess.astro";
+import OurProcess from "@components/OurProcess.astro";
+import Contact from "@components/Contact.vue";
 ---
 
 <script is:inline>
@@ -17,3 +18,4 @@ import OurProcess from "./OurProcess.astro";
 <Services />
 <OurProcess />
 <About />
+<Contact client:load/>

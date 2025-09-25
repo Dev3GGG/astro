@@ -1,29 +1,31 @@
 <template>
-  <div class="bg-3d" aria-hidden="true">
-    <CirclesBackground client:only />
-  </div>
-  <section class="tres-container fade-up" id="home">
-    <div class="grid fade-up">
-      <div class="title-content fade-up">
-        <p class="title-part-one">TRANSFORMANDO IDEAS</p>
-        <h1 class="title-part-two">EN GRANDES<span><br />SOLUCIONES</span></h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit, commodi? Ratione
-          necessitatibus, similique architecto sit ad incidunt rem voluptatum explicabo natus eaque fugiat
-          molestias illum veritatis, vel beatae autem nemo!
-        </p>
-        <ButtonMain text="Descúbrelo" />
-      </div>
+  <section class="home" id="home">
+    <div class="bg-3d" aria-hidden="true">
+      <CirclesBackground client:only />
+    </div>
+    <div class="tres-container fade-up">
+      <div class="grid fade-up">
+        <div class="title-content fade-up">
+          <p class="title-part-one">TRANSFORMANDO IDEAS</p>
+          <h1 class="title-part-two">EN GRANDES<span><br />SOLUCIONES</span></h1>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reprehenderit, commodi? Ratione
+            necessitatibus, similique architecto sit ad incidunt rem voluptatum explicabo natus eaque fugiat
+            molestias illum veritatis, vel beatae autem nemo!
+          </p>
+          <ButtonMain text="Descúbrelo" />
+        </div>
 
-      <div class="object fade-up">
-        <TresCanvas v-bind="gl">
-          <TresPerspectiveCamera :position="[0, 0, 3]" />
-          <TresAmbientLight :intensity="0.9" />
-          <TresDirectionalLight :position="[5, 5, 5]" :intensity="2" />
-          <Suspense>
-            <Moon />
-          </Suspense>
-        </TresCanvas>
+        <div class="object fade-up">
+          <TresCanvas v-bind="gl">
+            <TresPerspectiveCamera :position="[0, 0, 3]" />
+            <TresAmbientLight :intensity="0.9" />
+            <TresDirectionalLight :position="[5, 5, 5]" :intensity="2" />
+            <Suspense>
+              <Moon />
+            </Suspense>
+          </TresCanvas>
+        </div>
       </div>
     </div>
   </section>
@@ -85,10 +87,19 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
+.home {
+  margin-top: 90px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .tres-container {
   position: relative;
   isolation: isolate;
-  max-width: 1200px;
+  max-width: 80%;
   border-radius: 28px;
   margin-bottom: 60px;
   outline: 1px solid #e9ecf5;
@@ -102,11 +113,10 @@ onBeforeUnmount(() => {
 
 .bg-3d {
   position: absolute;
-  top: -40px;
-  left: 0;
-  right: 0;
   width: 100%;
-  min-height: clamp(630px, 65vw, 960px);
+  height: 100vh;
+  top: 20px;
+  left: 0;
   z-index: 0;
   pointer-events: none !important;
 }
@@ -122,12 +132,12 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 1024px) {
-  .tres-container {
-    margin: 40px 20px 40px 20px;
+  .home {
+    margin-top: 50px;
   }
 
-  .bg-3d {
-    top: 60px;
+  .tres-container {
+    margin: 40px 20px 40px 20px;
   }
 
   .grid {
@@ -176,6 +186,12 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
+  .home {
+    margin-top: 30px;
+  }
+  .bg-3d {
+    top: 30px;
+  }
   .object {
     min-height: clamp(240px, 55vw, 420px);
   }

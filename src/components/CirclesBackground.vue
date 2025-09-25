@@ -10,7 +10,7 @@ type Particle = {
     radius: number
 }
 
-const bounds = reactive({ x: 0.75, y: 0.33 })
+const bounds = reactive({ x: 0.8, y: 0.4 })
 const maxRadius = 0.08
 const minRadius = 0.04
 const count = 5
@@ -24,11 +24,11 @@ const particles = ref<Particle[]>([])
 
 function update_bounds() {
     if (window.innerWidth <= 600) {
-        bounds.x = 0.3
-        bounds.y = 0.47
+        bounds.x = 0.26
+        bounds.y = 0.42
     } else {
-        bounds.x = 0.75
-        bounds.y = 0.33
+        bounds.x = 0.9
+        bounds.y = 0.4
     }
 }
 
@@ -210,11 +210,3 @@ onLoop(() => {
             :material="materials[p.mat]" />
     </TresCanvas>
 </template>
-
-<style>
-canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-</style>
