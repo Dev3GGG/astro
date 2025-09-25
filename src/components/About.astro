@@ -50,7 +50,9 @@ const persons = [
                     class="global-headline-m line-height-1-2"
                     style="will-change: opacity; opacity: 1;"
                 >
-                    Nosotros <br /><span class="text-marker">NIZANA</span>
+                    <span class="text-title">Nosotros</span>
+                    <br />
+                    <span class="text-marker">NIZANA STUDIO</span>
                 </h2>
             </div>
         </div>
@@ -174,31 +176,26 @@ const persons = [
     }
     .max-width-35 {
         width: 100%;
-        max-width: 35rem;
-    }
-    .global-headline-m.line-height-1-2 {
-        line-height: 1.2em;
     }
     .global-headline-m {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         color: var(--blue);
-        text-align: center;
         letter-spacing: -0.5px;
-        margin-top: 0;
-        margin-bottom: 0;
-        font-family:
-            Inter Tight,
-            sans-serif;
         font-size: 60px;
         font-weight: 700;
-        line-height: 1em;
+        gap: 0.2em;
+    }
+    .text-title {
+        align-self: center;
     }
     .text-marker {
         color: #0465b1;
-        border-radius: 12px;
-        margin-right: 5px;
-        padding-left: 10px;
-        padding-right: 10px;
-        line-height: 1.1em;
+        font-weight: 600;
+        font-size: 0.6em;
+        letter-spacing: 0.5px;
+        align-self: flex-end;
     }
     .voices-div {
         grid-column-gap: 12.5rem;
@@ -301,8 +298,9 @@ const persons = [
         color: var(--white);
         text-decoration: none;
     }
-    @media screen and (max-width: 991px) {
+    @media screen and (max-width: 1024px) {
         .global-headline-m {
+            text-align: center;
             font-size: 54px;
         }
         .voices-item {
@@ -310,6 +308,9 @@ const persons = [
         }
         .voices-div {
             row-gap: 10rem;
+        }
+        .text-marker {
+            align-self: center;
         }
     }
 
