@@ -82,7 +82,7 @@ const handleSubmit = async () => {
                         </svg>
                     </div>
                     <h2>¡Mensaje Enviado!</h2>
-                    <p>Gracias por contactarme, te responderé lo antes posible.</p>
+                    <p>Gracias por contactarte, te responderemos lo antes posible.</p>
                 </div>
             </div>
             <div v-if="submissionStatus === 'error'" class="status-message error">
@@ -313,8 +313,8 @@ button:disabled {
     }
 
     .form-wrapper {
-        width: 85%;
-        padding: 2rem;
+        width: 80%;
+        padding: 1.5rem;
     }
 
     .form-container {
@@ -329,19 +329,24 @@ button:disabled {
     textarea {
         width: 100%;
         padding: 12px;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+    }
+
+    button {
+        padding: 10px;
+        font-size: 0.8rem;
     }
 
     .success-modal-content {
-        padding: 2rem;
+        padding: 1.5rem;
     }
 
     .success-modal-content h2 {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
     }
 
     .success-modal-content p {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 }
 </style>

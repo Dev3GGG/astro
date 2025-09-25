@@ -1,17 +1,9 @@
 ---
-interface Links {
-    label: string;
-    href: string;
-}
-interface Props {
-    links: Links[];
-}
 import Logo from "../assets/nizana.svg";
-const { links } = Astro.props;
 ---
 
-<footer class="footer">
-    <div class="container fade-up">
+<footer class="footer fade-up">
+    <div class="container">
         <div class="logo">
             <Logo width={250} height={90} />
             <p class="text-logo">
@@ -146,6 +138,12 @@ const { links } = Astro.props;
         .contacto {
             place-items: center;
             max-width: none;
+        }
+    }
+    @media (max-width: 600px){
+        .map{
+            width: 80%;
+            height: auto;
         }
     }
 </style>
