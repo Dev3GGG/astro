@@ -68,7 +68,7 @@ const handleSubmit = async () => {
                 <textarea v-model="message" id="message" name="message"
                     placeholder="Consulta para la creacion de un sistema..." required></textarea>
 
-                <button type="submit" :disabled="isSubmitting">
+                <button type="submit" class="button" :disabled="isSubmitting">
                     {{ isSubmitting ? 'Enviando...' : 'Enviar' }}
                 </button>
             </form>
@@ -171,7 +171,7 @@ textarea {
     resize: vertical;
 }
 
-button {
+.button {
     padding: 14px 20px;
     border: none;
     border-radius: 10px;
@@ -188,18 +188,18 @@ button {
     letter-spacing: 0.5px;
 }
 
-button:hover:not(:disabled) {
+.button:hover:not(:disabled) {
     background: #3d63b4;
     box-shadow: 0 5px 15px rgba(61, 99, 180, 0.45);
     transform: translateY(-2px);
 }
 
-button:active:not(:disabled) {
+.button:active:not(:disabled) {
     transform: translateY(0);
     box-shadow: 0 2px 5px rgba(61, 99, 180, 0.3);
 }
 
-button:disabled {
+.button:disabled {
     background-color: #9ab3e8;
     cursor: not-allowed;
 }

@@ -86,24 +86,57 @@ const persons = [
 
 <script>
     const cards = document.querySelectorAll(".voices-item");
-    const observerOptions = {
-        root: null,
-        rootMargin: "-50% 0px -50% 0px",
-        threshold: 0,
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("is-active");
+    let activeIndex = -1;
+    let lastScrollY = window.scrollY;
+    let isScrollingDown = true;
+    window.addEventListener(
+        "scroll",
+        () => {
+            const currentScrollY = window.scrollY;
+            isScrollingDown = currentScrollY > lastScrollY;
+            lastScrollY = currentScrollY;
+        },
+        { passive: true },
+    );
+    const updateCardClasses = () => {
+        cards.forEach((card, index) => {
+            if (index === activeIndex) {
+                card.classList.add("is-active");
+                card.classList.remove("is-inactive");
+            } else if (index < activeIndex) {
+                card.classList.add("is-inactive");
+                card.classList.remove("is-active");
             } else {
-                entry.target.classList.remove("is-active");
+                card.classList.remove("is-active", "is-inactive");
             }
         });
-    }, observerOptions);
-    cards.forEach((card) => {
-        observer.observe(card);
-    });
+    };
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                const currentIndex = Array.from(cards).indexOf(entry.target);
+                if (isScrollingDown) {
+                    if (entry.isIntersecting) {
+                        activeIndex = currentIndex;
+                    }
+                } else {
+                    if (!entry.isIntersecting && currentIndex === activeIndex) {
+                        activeIndex = currentIndex - 1;
+                    }
+                }
+
+                updateCardClasses();
+            });
+        },
+        {
+            root: null,
+            rootMargin: "-50% 0px -50% 0px",
+            threshold: 0,
+        },
+    );
+
+    cards.forEach((card) => observer.observe(card));
 </script>
 
 <style>
@@ -189,28 +222,28 @@ const persons = [
         position: sticky;
         top: 42.5vh;
         transition: transform 0.4s ease-out;
+        will-change: transform;
     }
     .voices-item._1 {
-        transform: rotate(6deg);
-        box-shadow: 0 2px 40px 10px #0003;
+        transform: translateY(-0.8rem) scale(0.94) rotate(6deg);
     }
     .voices-item._2 {
-        transform: rotate(-6deg);
+        transform: translateY(-0.4rem) scale(0.97) rotate(-6deg);
     }
     .voices-item._3 {
-        transform: rotate(6deg);
+        transform: translateY(-0.8rem) scale(0.94) rotate(6deg);
     }
     .voices-item._4 {
-        transform: rotate(-6deg);
+        transform: translateY(-0.4rem) scale(0.97) rotate(-6deg);
     }
     .voices-item._5 {
-        transform: rotate(6deg);
+        transform: translateY(-0.8rem) scale(0.94) rotate(6deg);
     }
     .voices-item._6 {
-        transform: rotate(-6deg);
+        transform: translateY(-0.4rem) scale(0.97) rotate(-6deg);
     }
     .voices-item.is-active {
-        transform: rotate(0deg);
+        transform: translateY(0) scale(1) rotate(0deg);
     }
     .align-vertically {
         flex-flow: column;
