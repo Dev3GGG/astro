@@ -1,14 +1,7 @@
 <template>
   <Transition name="fade" appear>
     <div v-if="showLoader" class="page-loader">
-      <div class="logo-spinner">
-        <img
-          ref="logoElement"
-          :src="Logo"
-          alt="Nizana"
-          class="loading"
-        />
-      </div>
+      <img ref="logoElement" :src="Logo" alt="Nizana" class="loading" />
     </div>
   </Transition>
 </template>
@@ -42,7 +35,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   logoAnimation?.kill()
-  clearTimeout(loaderTimer)
+  if (loaderTimer) {
+    clearTimeout(loaderTimer)
+  }
 })
 </script>
 
@@ -54,10 +49,6 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   background: #ffffff;
-}
-
-.logo-spinner {
-  animation: slow-spin 12s linear infinite;
 }
 
 .loading {
@@ -79,20 +70,7 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-@keyframes slow-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .logo-spinner {
-    animation: none;
-  }
 
   .fade-enter-active,
   .fade-leave-active {
