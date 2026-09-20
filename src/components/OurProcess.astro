@@ -1,14 +1,11 @@
 ---
 import image1 from "../assets/image/nizana.jpg";
 import image2 from "../assets/image/mision.png";
-import image3 from "../assets/image/vision.png";
-import image4 from "../assets/image/valores.png";
-
-const AUTOPLAY_MS = 7000;
+import image3 from "../assets/image/valores.png";
+import image4 from "../assets/image/vision.png";
 
 const slides = [
     {
-        id: "historia",
         name: "HISTORIA",
         texto: `Desde nuestros inicios hemos apostado por el diseño centrado en las personas. 
             Empezamos como un pequeño estudio y evolucionamos a un equipo multidisciplinario 
@@ -16,7 +13,6 @@ const slides = [
         img: image1,
     },
     {
-        id: "mision",
         name: "MISIÓN",
         texto: `Nos guiamos por la innovación, la calidad y la excelencia, 
             trabajando con compromiso, responsabilidad y transparencia; 
@@ -25,7 +21,6 @@ const slides = [
         img: image2,
     },
     {
-        id: "vision",
         name: "VISIÓN",
         texto: `Convertirnos en un referente en el desarrollo de software,
             reconocido por nuestra calidad, innovación y excelencia técnica.
@@ -35,7 +30,6 @@ const slides = [
         img: image3,
     },
     {
-        id: "valores",
         name: "VALORES",
         texto: `Nos guiamos por la innovación, la calidad y la excelencia,
             trabajando con compromiso, responsabilidad y transparencia; 
@@ -46,296 +40,179 @@ const slides = [
 ];
 ---
 
-<section
-    class="op-section fade-up"
-    id="our-process"
-    aria-label="CÃ³mo trabajamos"
->
-    <div
-        class="op-accordion"
-        role="tablist"
-        aria-label="Secciones de la empresa"
-        data-autoplay-ms={AUTOPLAY_MS}
-    >
-        {
-            slides.map((s, i) => (
-                <article
-                    class={`op-pane ${i === 0 ? "is-active" : ""}`}
-                    data-index={i}
-                    style={`--bg-img: url(${s.img.src});`}
+<section class="accordion fade-up" id="our-process">
+    {
+        slides.map((s, i) => (
+            <article
+                class={`pane ${i === 0 ? "is-active" : ""}`}
+                data-index={i + 1}
+                style={`--bg-img: url(${s.img.src}); --content-h: 0px;`}
+            >
+                <button
+                    class="tab-btn"
+                    role="tab"
+                    aria-selected={i === 0 ? "true" : "false"}
+                    aria-controls={`panel-${i}`}
+                    data-index={i + 1}
                 >
-                    <button
-                        class="op-tab"
-                        id={`op-tab-${s.id}`}
-                        role="tab"
-                        aria-selected={i === 0 ? "true" : "false"}
-                        aria-controls={`op-panel-${s.id}`}
-                        tabindex={i === 0 ? "0" : "-1"}
-                        data-index={i}
-                    >
-                        <span>{s.name}</span>
-                        <span class="op-dot" aria-hidden="true" />
-                    </button>
+                    <span>{s.name}</span>
+                    <span class="dot" aria-hidden="true" />
+                </button>
 
-                    <div
-                        id={`op-panel-${s.id}`}
-                        class="op-content"
-                        role="tabpanel"
-                        aria-labelledby={`op-tab-${s.id}`}
-                        aria-hidden={i === 0 ? "false" : "true"}
-                    >
-                        <div class="op-content-inner">
-                            <div class="op-card-wrapper">
-                                <div class="op-card">
-                                    <h3>{s.name}</h3>
-                                    <p>{s.texto}</p>
-                                    <div
-                                        class="op-progress-track"
-                                        aria-hidden="true"
-                                    >
-                                        <div class="op-progress-fill" />
-                                    </div>
-                                </div>
-                            </div>
+                <div
+                    id={`panel-${i}`}
+                    class="content"
+                    role="tabpanel"
+                    aria-labelledby={`pane-${i}`}
+                >
+                    <div class="content-inner">
+                        <div class="card">
+                            <h3>{s.name}</h3>
+                            <p>{s.texto}</p>
+                            <div class="underline" />
                         </div>
                     </div>
-                </article>
-            ))
-        }
-    </div>
+                </div>
+            </article>
+        ))
+    }
 </section>
 
-<script>
-    // @ts-nocheck
-    function initAccordion(container) {
-        if (container.dataset.opInit === "true") return;
-        container.dataset.opInit = "true";
+<script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+        const root = document.documentElement;
+        const panes = Array.from(document.querySelectorAll(".pane"));
+        const tabs = Array.from(document.querySelectorAll(".tab-btn"));
 
-        const AUTOPLAY_MS = parseInt(
-            container.dataset.autoplayMs || "7000",
-            10,
-        );
-        const panes = Array.from(container.querySelectorAll(".op-pane"));
-        const tabs = Array.from(container.querySelectorAll(".op-tab"));
-        const count = panes.length;
+        let currentIndex = 1;
+        let intervalId;
 
-        let active = 0;
-        let paused = false;
-        let timer = null;
-
-        const prefersReducedMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        );
-
-        // ── Timer ──────────────────────────────────────────
-        function startTimer() {
-            clearTimeout(timer);
-            // BUG FIX: no arrancar el timer si está pausado o hay reducción de movimiento
-            if (paused || prefersReducedMotion.matches) return;
-            timer = setTimeout(function () {
-                goTo((active + 1) % count);
-            }, AUTOPLAY_MS);
-        }
-
-        function stopTimer() {
-            clearTimeout(timer);
-            timer = null;
-        }
-
-        // ── Progress bar (visual) ──────────────────────────
-        function resetBar(pane, play) {
-            const fill = pane.querySelector(".op-progress-fill");
-            if (!fill) return;
-            fill.classList.remove("is-playing");
-            void fill.offsetWidth; // fuerza reflow para reiniciar la animación CSS
-            if (play && !prefersReducedMotion.matches) {
-                fill.style.setProperty(
-                    "--autoplay-duration",
-                    AUTOPLAY_MS + "ms",
-                );
-                fill.classList.add("is-playing");
-                fill.style.animationPlayState = paused ? "paused" : "running";
+        function measureAndSetHeight(pane, active) {
+            const content = pane.querySelector(".content");
+            const inner = pane.querySelector(".content-inner");
+            if (!content || !inner) return;
+            if (active) {
+                const h = inner.scrollHeight;
+                pane.style.setProperty("--content-h", `${h}px`);
+            } else {
+                pane.style.setProperty("--content-h", `0px`);
             }
         }
 
-        // ── Core ───────────────────────────────────────────
-        function goTo(index) {
-            if (index < 0 || index >= count) return;
-            active = index;
-            panes.forEach(function (p, i) {
-                const isActive = i === index;
-                p.classList.toggle("is-active", isActive);
-                const tab = tabs[i];
-                if (tab) {
-                    tab.setAttribute(
+        function setActive(index) {
+            currentIndex = index;
+
+            panes.forEach((p, i) => {
+                const active = i === index - 1;
+                p.classList.toggle("is-active", active);
+
+                const btn = p.querySelector(".tab-btn");
+                if (btn)
+                    btn.setAttribute(
                         "aria-selected",
-                        isActive ? "true" : "false",
+                        active ? "true" : "false",
                     );
-                    tab.setAttribute("tabindex", isActive ? "0" : "-1");
+
+                const underline = p.querySelector(".underline");
+                if (underline) {
+                    underline.classList.remove("anim");
+                    void underline.offsetWidth;
+                    if (active) underline.classList.add("anim");
                 }
-                const panel = p.querySelector(".op-content");
-                if (panel)
-                    panel.setAttribute(
-                        "aria-hidden",
-                        isActive ? "false" : "true",
-                    );
-                resetBar(p, isActive);
+
+                measureAndSetHeight(p, active);
             });
-            startTimer();
+
+            panes.forEach((_, i) => {
+                root.style.setProperty(
+                    `--col${i + 1}`,
+                    index === i + 1 ? "3fr" : "1fr",
+                );
+            });
         }
 
-        // ── Pause / Resume (solo hover y visibilidad) ─────
-        function pause() {
-            if (paused) return;
-            paused = true;
-            stopTimer();
-            const fill =
-                panes[active] &&
-                panes[active].querySelector(".op-progress-fill");
-            if (fill) fill.style.animationPlayState = "paused";
+        function startAutoPlay() {
+            if (intervalId) clearInterval(intervalId);
+            intervalId = window.setInterval(() => {
+                const next =
+                    currentIndex === panes.length ? 1 : currentIndex + 1;
+                setActive(next);
+            }, 7000);
         }
 
-        function resume() {
-            if (!paused) return;
-            paused = false;
-            // Reiniciar la barra desde 0 y arrancar el timer
-            goTo(active);
-        }
-
-        function onVisibilityChange() {
-            document.hidden ? pause() : resume();
-        }
-
-        // ── Teclado ────────────────────────────────────────
-        function onKeydown(e) {
-            const target = e.target;
-            if (!target.classList.contains("op-tab")) return;
-            let next = null;
-            switch (e.key) {
-                case "ArrowRight":
-                case "ArrowDown":
-                    next = (active + 1) % count;
-                    break;
-                case "ArrowLeft":
-                case "ArrowUp":
-                    next = (active - 1 + count) % count;
-                    break;
-                case "Home":
-                    next = 0;
-                    break;
-                case "End":
-                    next = count - 1;
-                    break;
-                default:
-                    return;
-            }
-            e.preventDefault();
-            if (next !== null) {
-                goTo(next);
-                if (tabs[next]) tabs[next].focus();
-            }
-        }
-
-        // ── Clicks ─────────────────────────────────────────
-        tabs.forEach(function (btn) {
-            btn.addEventListener("click", function (e) {
+        tabs.forEach((btn) => {
+            btn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                // BUG FIX: si estaba pausado por hover, reanudar antes de cambiar
-                paused = false;
-                goTo(parseInt(btn.dataset.index || "0", 10));
+                setActive(parseInt(btn.dataset.index || "1", 10));
+                startAutoPlay();
             });
         });
 
-        panes.forEach(function (pane, idx) {
+        panes.forEach((pane, idx) => {
             pane.style.cursor = "pointer";
-            pane.addEventListener("click", function (e) {
+            pane.addEventListener("click", (e) => {
                 if (e.target.closest("a, button, input, textarea, select"))
                     return;
-                // BUG FIX: si estaba pausado por hover, reanudar antes de cambiar
-                paused = false;
-                goTo(idx);
+                setActive(idx + 1);
+                startAutoPlay();
+            });
+
+            const ro = new ResizeObserver(() => {
+                const active = pane.classList.contains("is-active");
+                if (active) measureAndSetHeight(pane, true);
+            });
+            const inner = pane.querySelector(".content-inner");
+            if (inner) ro.observe(inner);
+        });
+
+        setActive(1);
+        startAutoPlay();
+
+        window.addEventListener("resize", () => {
+            panes.forEach((p) => {
+                const active = p.classList.contains("is-active");
+                if (active) measureAndSetHeight(p, true);
             });
         });
-
-        // ── Eventos: solo hover y visibilidad ─────────────
-        // BUG FIX: se eliminó focusin/focusout porque causaba quedar pausado
-        // permanentemente al hacer click dentro del acordeón.
-        container.addEventListener("mouseenter", pause);
-        container.addEventListener("mouseleave", resume);
-        document.addEventListener("visibilitychange", onVisibilityChange);
-        container.addEventListener("keydown", onKeydown);
-
-        prefersReducedMotion.addEventListener("change", function () {
-            prefersReducedMotion.matches ? stopTimer() : goTo(active);
-        });
-
-        const c = container;
-        c.__opCleanup = function () {
-            stopTimer();
-            document.removeEventListener(
-                "visibilitychange",
-                onVisibilityChange,
-            );
-            container.removeEventListener("keydown", onKeydown);
-            container.removeEventListener("mouseenter", pause);
-            container.removeEventListener("mouseleave", resume);
-            container.removeAttribute("data-op-init");
-        };
-
-        goTo(0);
-    }
-
-    function boot() {
-        const el = document.querySelector(".op-accordion");
-        if (!el) return;
-        const c = el;
-        if (c.__opCleanup) c.__opCleanup();
-        initAccordion(el);
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", boot, { once: true });
-    } else {
-        boot();
-    }
-    document.addEventListener("astro:page-load", boot);
+    });
 </script>
 
 <style>
-    .op-section {
-        margin: 10px 0 50px 0;
-        display: flex;
-        justify-content: center;
-        width: 100%;
+    :root {
+        --col1: 3fr;
+        --col2: 1fr;
+        --col3: 1fr;
+        --col4: 1fr;
+        --dur-fast: 0.22s;
+        --dur-med: 0.35s;
+        --dur-slow: 0.6s;
+        --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .op-accordion {
+    .accordion {
+        margin: 10px 0 50px 0;
         width: min(1300px, 100%);
         min-height: 420px;
-        display: flex;
-        flex-direction: row;
+        display: grid;
+        grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4);
         gap: 10px;
-        padding: 0 15px;
+        align-items: stretch;
+        transition: grid-template-columns var(--dur-med) var(--ease-smooth);
     }
 
-    .op-pane {
+    .pane {
+        --content-h: 0px;
         position: relative;
-        flex: 1;
         overflow: hidden;
         border-radius: 16px;
         background: #0b1222;
         color: #eef2ff;
-
-        transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-        display: flex;
-        flex-direction: column;
+        isolation: isolate;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        display: grid;
+        grid-template-rows: auto 1fr;
     }
-
-    .op-pane.is-active {
-        flex: 3;
-    }
-
-    .op-pane::before {
+    .pane::before {
         content: "";
         position: absolute;
         inset: 0;
@@ -343,21 +220,21 @@ const slides = [
         background-image: var(--bg-img);
         background-size: cover;
         background-position: center;
-        opacity: 0.45;
-        transition: opacity 0.5s ease;
+        opacity: 0.55;
+        transition:
+            opacity var(--dur-med) var(--ease-smooth),
+            transform var(--dur-med) var(--ease-smooth);
+    }
+    .pane.is-active::before {
+        opacity: 0.75;
     }
 
-    .op-pane.is-active::before {
-        opacity: 0.7;
-    }
-
-    .op-tab {
-        position: absolute;
-        inset: 0;
-        z-index: 2;
+    .tab-btn {
+        position: relative;
+        z-index: 1;
         background: transparent;
         color: #fff;
-        padding: 20px 16px;
+        padding: 14px 16px;
         cursor: pointer;
         border: none;
         text-align: left;
@@ -365,24 +242,13 @@ const slides = [
         font-size: clamp(12px, 1.6vw, 14px);
         letter-spacing: 0.3px;
         display: flex;
-        align-items: flex-end;
-        justify-content: flex-start;
+        align-items: center;
         gap: 10px;
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-        transform: rotate(180deg);
         transition:
-            opacity 0.3s ease,
-            visibility 0.3s;
+            opacity var(--dur-slow) var(--ease-smooth),
+            visibility var(--dur-slow) step-end;
     }
-
-    .op-tab:focus-visible {
-        outline: 2px solid #7c8bd6;
-        outline-offset: -4px;
-        border-radius: 12px;
-    }
-
-    .op-dot {
+    .tab-btn .dot {
         width: 10px;
         height: 10px;
         border-radius: 50%;
@@ -390,163 +256,214 @@ const slides = [
         border: 1px solid #dbe3ff;
     }
 
-    .op-pane.is-active .op-tab {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
+    .pane:not(.is-active) .tab-btn {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding: 12px 10px;
+        height: 100%;
     }
 
-    .op-content {
+    .content {
         position: relative;
-        z-index: 1;
-        flex: 1;
-        display: grid;
-        grid-template-rows: 0fr;
-        align-content: center;
-        transition: grid-template-rows 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
-    .op-pane.is-active .op-content {
-        grid-template-rows: 1fr;
-    }
-
-    .op-content-inner {
-        overflow: hidden;
-        min-height: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0;
-        transform: translateY(15px);
+        z-index: 1;
+        padding: 0 20px 20px;
+        overflow: hidden;
+        height: var(--content-h);
         transition:
-            opacity 0.4s ease,
-            transform 0.4s ease;
+            height var(--dur-med) var(--ease-smooth),
+            padding var(--dur-med) var(--ease-smooth);
     }
-
-    .op-pane.is-active .op-content-inner {
+    .content-inner {
+        opacity: 0;
+        transform: translateY(10px);
+        transition:
+            opacity var(--dur-med) var(--ease-smooth),
+            transform var(--dur-med) var(--ease-smooth);
+    }
+    .pane.is-active .content {
+        padding: 30px;
+    }
+    .pane.is-active .content-inner {
         opacity: 1;
         transform: translateY(0);
-        transition-delay: 0.1s;
     }
 
-    .op-card-wrapper {
-        padding: 30px;
-        width: 100%;
-        max-width: 500px;
+    .pane .tab-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+    .pane.is-active .tab-btn {
+        opacity: 0;
+        visibility: hidden;
     }
 
-    .op-card {
-        background: rgba(22, 30, 50, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+    .card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 14px;
-        padding: 24px;
+        padding: 22px 24px;
         position: relative;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
     }
-
-    .op-card h3 {
+    .card h3 {
         margin: 0 0 8px;
         font-size: clamp(18px, 2vw, 22px);
         color: #dbe3ff;
     }
-
-    .op-card p {
-        margin: 0 0 16px;
+    .card p {
+        margin: 0 0 12px;
         line-height: 1.55;
-        font-size: clamp(14px, 1vw, 16px);
-        color: rgba(255, 255, 255, 0.9);
+        font-size: clamp(14px, 1.8vw, 16px);
     }
 
-    .op-progress-track {
+    .pane.is-active .card {
+        animation: cardIn var(--dur-slow) var(--ease-smooth) both;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+    }
+    .pane.is-active .card::after {
+        content: "";
+        position: absolute;
+        inset: -20% -40%;
+        background: linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.18) 45%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        filter: blur(8px);
+        pointer-events: none;
+        animation: glowSweep 0.7s var(--ease-smooth) 0.09s both;
+    }
+    .pane.is-active .card h3 {
+        animation: fadeUp var(--dur-med) var(--ease-smooth) both;
+    }
+    .pane.is-active .card p {
+        animation: fadeUp var(--dur-med) var(--ease-smooth) 90ms both;
+    }
+
+    .underline {
         width: 100%;
         height: 3px;
-        background: rgba(255, 255, 255, 0.12);
+        background: linear-gradient(90deg, #7c8bd6, #7c8bd6);
         border-radius: 10px;
-        overflow: hidden;
     }
-
-    .op-progress-fill {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, #7c8bd6, #a1b0ff);
-        border-radius: 10px;
-        transform-origin: left center;
-        transform: scaleX(0);
-        will-change: transform;
+    .underline.anim {
+        animation: fillBar 7s linear forwards;
     }
-
-    .op-progress-fill.is-playing {
-        animation: op-fillBar var(--autoplay-duration, 7000ms) linear;
-    }
-
-    @keyframes op-fillBar {
+    @keyframes fillBar {
         from {
-            transform: scaleX(0);
+            width: 0;
         }
         to {
-            transform: scaleX(1);
+            width: 100%;
+        }
+    }
+    @keyframes cardIn {
+        0% {
+            opacity: 0;
+            transform: translateY(12px) scale(0.965);
+            filter: blur(6px);
+        }
+        60% {
+            opacity: 1;
+            transform: translateY(0) scale(1.015);
+            filter: blur(1.5px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+    }
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes glowSweep {
+        0% {
+            transform: translateX(-120%) rotate(8deg);
+            opacity: 0;
+        }
+        30% {
+            opacity: 0.6;
+        }
+        100% {
+            transform: translateX(140%) rotate(8deg);
+            opacity: 0;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        :root {
+            --col1: 2.5fr;
+            --col2: 1fr;
+            --col3: 1fr;
+            --col4: 1fr;
         }
     }
 
     @media (max-width: 900px) {
-        .op-accordion {
-            display: grid;
+        .accordion {
             grid-template-columns: 1fr 1fr;
             grid-auto-rows: minmax(260px, auto);
-            min-height: auto;
         }
-
-        .op-pane {
-            flex: none;
-        }
-
-        .op-tab {
+        .pane:not(.is-active) .tab-btn {
             writing-mode: initial;
             transform: none;
+            height: auto;
             align-items: center;
             padding: 14px 16px;
-            height: 60px;
-            bottom: auto;
         }
-
-        .op-pane.is-active .op-tab {
+        .pane.is-active .tab-btn {
             opacity: 1;
             visibility: visible;
-            pointer-events: auto;
-            position: relative;
         }
-
-        .op-card-wrapper {
-            padding: 15px;
-        }
-
-        .op-card {
-            padding: 18px;
+        .pane.is-active .content {
+            padding: 14px;
         }
     }
 
     @media (max-width: 640px) {
-        .op-accordion {
-            display: flex;
-            flex-direction: column;
+        .accordion {
+            display: block;
+            gap: 10px;
         }
-
-        .op-pane {
-            min-height: 60px;
+        .pane {
+            margin: 10px;
         }
-
-        .op-pane.is-active {
-            flex: none;
+        .pane::before {
+            opacity: 0.6;
+        }
+        .tab-btn {
+            font-size: 15px;
+        }
+        .card {
+            padding: 18px 16px;
+        }
+        .pane.is-active .content {
+            padding: 14px;
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .op-pane,
-        .op-pane::before,
-        .op-tab,
-        .op-content,
-        .op-content-inner,
-        .op-progress-fill {
+        .accordion,
+        .pane::before,
+        .tab-btn,
+        .content,
+        .content-inner {
             transition: none !important;
             animation: none !important;
         }
