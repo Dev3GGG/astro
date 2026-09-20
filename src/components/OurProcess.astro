@@ -46,7 +46,11 @@ const slides = [
 ];
 ---
 
-<section class="op-section fade-up" id="our-process" aria-label="CÃ³mo trabajamos">
+<section
+    class="op-section fade-up"
+    id="our-process"
+    aria-label="CÃ³mo trabajamos"
+>
     <div
         class="op-accordion"
         role="tablist"
@@ -85,7 +89,10 @@ const slides = [
                                 <div class="op-card">
                                     <h3>{s.name}</h3>
                                     <p>{s.texto}</p>
-                                    <div class="op-progress-track" aria-hidden="true">
+                                    <div
+                                        class="op-progress-track"
+                                        aria-hidden="true"
+                                    >
                                         <div class="op-progress-fill" />
                                     </div>
                                 </div>
@@ -104,75 +111,94 @@ const slides = [
         if (container.dataset.opInit === "true") return;
         container.dataset.opInit = "true";
 
-        const AUTOPLAY_MS = parseInt(container.dataset.autoplayMs || "7000", 10);
+        const AUTOPLAY_MS = parseInt(
+            container.dataset.autoplayMs || "7000",
+            10,
+        );
         const panes = Array.from(container.querySelectorAll(".op-pane"));
-        const tabs  = Array.from(container.querySelectorAll(".op-tab"));
+        const tabs = Array.from(container.querySelectorAll(".op-tab"));
         const count = panes.length;
 
-        let active    = 0;
-        let paused    = false;
-        let timer     = null;
+        let active = 0;
+        let paused = false;
+        let timer = null;
 
-        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const prefersReducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+        );
 
+        // ── Timer ──────────────────────────────────────────
         function startTimer() {
             clearTimeout(timer);
-            if (prefersReducedMotion.matches) return;
-            timer = setTimeout(function() {
+            // BUG FIX: no arrancar el timer si está pausado o hay reducción de movimiento
+            if (paused || prefersReducedMotion.matches) return;
+            timer = setTimeout(function () {
                 goTo((active + 1) % count);
             }, AUTOPLAY_MS);
         }
+
         function stopTimer() {
             clearTimeout(timer);
             timer = null;
         }
+
+        // ── Progress bar (visual) ──────────────────────────
         function resetBar(pane, play) {
             const fill = pane.querySelector(".op-progress-fill");
             if (!fill) return;
-
             fill.classList.remove("is-playing");
-            void fill.offsetWidth;
-
+            void fill.offsetWidth; // fuerza reflow para reiniciar la animación CSS
             if (play && !prefersReducedMotion.matches) {
-                fill.style.setProperty("--autoplay-duration", AUTOPLAY_MS + "ms");
+                fill.style.setProperty(
+                    "--autoplay-duration",
+                    AUTOPLAY_MS + "ms",
+                );
                 fill.classList.add("is-playing");
                 fill.style.animationPlayState = paused ? "paused" : "running";
             }
         }
 
+        // ── Core ───────────────────────────────────────────
         function goTo(index) {
             if (index < 0 || index >= count) return;
             active = index;
-
-            panes.forEach(function(p, i) {
+            panes.forEach(function (p, i) {
                 const isActive = i === index;
                 p.classList.toggle("is-active", isActive);
-
                 const tab = tabs[i];
                 if (tab) {
-                    tab.setAttribute("aria-selected", isActive ? "true" : "false");
-                    tab.setAttribute("tabindex",       isActive ? "0"    : "-1");
+                    tab.setAttribute(
+                        "aria-selected",
+                        isActive ? "true" : "false",
+                    );
+                    tab.setAttribute("tabindex", isActive ? "0" : "-1");
                 }
                 const panel = p.querySelector(".op-content");
-                if (panel) panel.setAttribute("aria-hidden", isActive ? "false" : "true");
-
+                if (panel)
+                    panel.setAttribute(
+                        "aria-hidden",
+                        isActive ? "false" : "true",
+                    );
                 resetBar(p, isActive);
             });
             startTimer();
         }
+
+        // ── Pause / Resume (solo hover y visibilidad) ─────
         function pause() {
             if (paused) return;
             paused = true;
             stopTimer();
-            const fill = panes[active] && panes[active].querySelector(".op-progress-fill");
+            const fill =
+                panes[active] &&
+                panes[active].querySelector(".op-progress-fill");
             if (fill) fill.style.animationPlayState = "paused";
         }
 
         function resume() {
             if (!paused) return;
             paused = false;
-            const fill = panes[active] && panes[active].querySelector(".op-progress-fill");
-            if (fill) fill.style.animationPlayState = "running";
+            // Reiniciar la barra desde 0 y arrancar el timer
             goTo(active);
         }
 
@@ -180,16 +206,28 @@ const slides = [
             document.hidden ? pause() : resume();
         }
 
+        // ── Teclado ────────────────────────────────────────
         function onKeydown(e) {
             const target = e.target;
             if (!target.classList.contains("op-tab")) return;
             let next = null;
             switch (e.key) {
-                case "ArrowRight": case "ArrowDown": next = (active + 1) % count; break;
-                case "ArrowLeft":  case "ArrowUp":   next = (active - 1 + count) % count; break;
-                case "Home": next = 0; break;
-                case "End":  next = count - 1; break;
-                default: return;
+                case "ArrowRight":
+                case "ArrowDown":
+                    next = (active + 1) % count;
+                    break;
+                case "ArrowLeft":
+                case "ArrowUp":
+                    next = (active - 1 + count) % count;
+                    break;
+                case "Home":
+                    next = 0;
+                    break;
+                case "End":
+                    next = count - 1;
+                    break;
+                default:
+                    return;
             }
             e.preventDefault();
             if (next !== null) {
@@ -198,41 +236,49 @@ const slides = [
             }
         }
 
-        tabs.forEach(function(btn) {
-            btn.addEventListener("click", function(e) {
+        // ── Clicks ─────────────────────────────────────────
+        tabs.forEach(function (btn) {
+            btn.addEventListener("click", function (e) {
                 e.stopPropagation();
+                // BUG FIX: si estaba pausado por hover, reanudar antes de cambiar
+                paused = false;
                 goTo(parseInt(btn.dataset.index || "0", 10));
             });
         });
 
-        panes.forEach(function(pane, idx) {
+        panes.forEach(function (pane, idx) {
             pane.style.cursor = "pointer";
-            pane.addEventListener("click", function(e) {
-                if (e.target.closest("a, button, input, textarea, select")) return;
+            pane.addEventListener("click", function (e) {
+                if (e.target.closest("a, button, input, textarea, select"))
+                    return;
+                // BUG FIX: si estaba pausado por hover, reanudar antes de cambiar
+                paused = false;
                 goTo(idx);
             });
         });
 
+        // ── Eventos: solo hover y visibilidad ─────────────
+        // BUG FIX: se eliminó focusin/focusout porque causaba quedar pausado
+        // permanentemente al hacer click dentro del acordeón.
         container.addEventListener("mouseenter", pause);
         container.addEventListener("mouseleave", resume);
-        container.addEventListener("focusin",    pause);
-        container.addEventListener("focusout",   resume);
         document.addEventListener("visibilitychange", onVisibilityChange);
         container.addEventListener("keydown", onKeydown);
 
-        prefersReducedMotion.addEventListener("change", function() {
+        prefersReducedMotion.addEventListener("change", function () {
             prefersReducedMotion.matches ? stopTimer() : goTo(active);
         });
 
         const c = container;
-        c.__opCleanup = function() {
+        c.__opCleanup = function () {
             stopTimer();
-            document.removeEventListener("visibilitychange", onVisibilityChange);
-            container.removeEventListener("keydown",     onKeydown);
-            container.removeEventListener("mouseenter",  pause);
-            container.removeEventListener("mouseleave",  resume);
-            container.removeEventListener("focusin",     pause);
-            container.removeEventListener("focusout",    resume);
+            document.removeEventListener(
+                "visibilitychange",
+                onVisibilityChange,
+            );
+            container.removeEventListener("keydown", onKeydown);
+            container.removeEventListener("mouseenter", pause);
+            container.removeEventListener("mouseleave", resume);
             container.removeAttribute("data-op-init");
         };
 
@@ -279,7 +325,7 @@ const slides = [
         border-radius: 16px;
         background: #0b1222;
         color: #eef2ff;
-        
+
         transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1);
         display: flex;
         flex-direction: column;
@@ -325,7 +371,9 @@ const slides = [
         writing-mode: vertical-rl;
         text-orientation: mixed;
         transform: rotate(180deg);
-        transition: opacity 0.3s ease, visibility 0.3s;
+        transition:
+            opacity 0.3s ease,
+            visibility 0.3s;
     }
 
     .op-tab:focus-visible {
@@ -364,19 +412,21 @@ const slides = [
 
     .op-content-inner {
         overflow: hidden;
-        min-height: 0; 
+        min-height: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         opacity: 0;
         transform: translateY(15px);
-        transition: opacity 0.4s ease, transform 0.4s ease;
+        transition:
+            opacity 0.4s ease,
+            transform 0.4s ease;
     }
 
     .op-pane.is-active .op-content-inner {
         opacity: 1;
         transform: translateY(0);
-        transition-delay: 0.1s; 
+        transition-delay: 0.1s;
     }
 
     .op-card-wrapper {
@@ -386,8 +436,7 @@ const slides = [
     }
 
     .op-card {
-        
-        background: rgba(22, 30, 50, 0.85); 
+        background: rgba(22, 30, 50, 0.85);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 14px;
         padding: 24px;
@@ -431,13 +480,16 @@ const slides = [
     }
 
     @keyframes op-fillBar {
-        from { transform: scaleX(0); }
-        to { transform: scaleX(1); }
+        from {
+            transform: scaleX(0);
+        }
+        to {
+            transform: scaleX(1);
+        }
     }
 
     @media (max-width: 900px) {
         .op-accordion {
-            
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-auto-rows: minmax(260px, auto);
@@ -480,9 +532,9 @@ const slides = [
         }
 
         .op-pane {
-            min-height: 60px; 
+            min-height: 60px;
         }
-        
+
         .op-pane.is-active {
             flex: none;
         }

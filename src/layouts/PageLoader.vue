@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div v-if="isVisible" class="page-loader" ref="loaderRef">
     <img src="/nizana.svg" alt="Nizana" class="loading" ref="logoRef" />
   </div>
@@ -30,15 +30,15 @@ onMounted(() => {
   // 1. Animamos el logo (Aparece)
   tl.fromTo(
     logoRef.value,
-    { opacity: 0, scale: 0.8, y: -25 },
-    { opacity: 1, scale: 1, y: 0, duration: 1.2, ease: "back.out(1.7)" }
+    { opacity: 0, scale: 0.8, y: -20 },
+    { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)" }
   );
 
   // 2. Animamos la pantalla blanca (Se desvanece)
   tl.to(
     loaderRef.value,
-    { opacity: 0, duration: 0.8, ease: "power2.inOut" },
-    "+=0.3" // Mantiene el logo en pantalla 0.3s antes de desvanecer
+    { opacity: 0, duration: 0.5, ease: "power2.inOut" },
+    "+=0.2"
   );
 });
 </script>
