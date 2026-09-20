@@ -1,37 +1,31 @@
 <template>
-  <transition name="fade" appear>
+  <Transition name="fade" appear>
     <div v-if="showLoader" class="page-loader">
-      <img :src="Logo" alt="Nizana" class="loading" />
+      <div class="logo-spinner">
+        <img
+          ref="logoElement"
+          :src="Logo"
+          alt="Nizana"
+          class="loading"
+        />
+      </div>
     </div>
-  </transition>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue"
-import { useProgress } from "@tresjs/cientos"
+import { onBeforeUnmount, onMounted, ref } from "vue"
+import { gsap } from "gsap"
 import Logo from "../assets/nizana.svg?url"
-import { gsap } from 'gsap'
 
-const { hasFinishLoading } = await useProgress()
 const showLoader = ref(true)
+const logoElement = ref<HTMLImageElement | null>(null)
 
-function announceReady() {
-  window.dispatchEvent(new CustomEvent("tres:ready"))
-  document.documentElement.classList.add("tres-ready")
-}
-
-watch(hasFinishLoading, (done) => {
-  if (done) {
-    setTimeout(() => {
-      showLoader.value = false
-      announceReady()
-    }, 1000)
-  }
-})
+let logoAnimation: gsap.core.Tween
+let loaderTimer: ReturnType<typeof setTimeout>
 
 onMounted(() => {
-  const tl = gsap.timeline();
-  tl.from(".loading", {
+  logoAnimation = gsap.from(logoElement.value, {
     opacity: 0,
     scaleX: 0.8,
     scaleY: 0.8,
@@ -40,10 +34,15 @@ onMounted(() => {
     delay: 0.1,
     ease: "back.out(1.7)",
   })
-  if (hasFinishLoading.value) {
+
+  loaderTimer = setTimeout(() => {
     showLoader.value = false
-    announceReady()
-  }
+  }, 1800)
+})
+
+onBeforeUnmount(() => {
+  logoAnimation?.kill()
+  clearTimeout(loaderTimer)
 })
 </script>
 
@@ -57,13 +56,47 @@ onMounted(() => {
   background: #ffffff;
 }
 
-.loading {
-  width: clamp(266px, 22vw, 200px);
-  height: auto;
-  user-select: none;
-  -webkit-user-drag: none;
-  animation: logo-in 0.8s ease-out 0.15s both,
-    slow-spin 12s linear infinite;
+.logo-spinner {
+  animation: slow-spin 12s linear infinite;
 }
 
+.loading {
+  display: block;
+  width: clamp(160px, 22vw, 266px);
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes slow-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-spinner {
+    animation: none;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: none;
+  }
+}
 </style>

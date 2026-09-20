@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import CirclesBackground from "@components/CirclesBackground.vue";
 
 const name = ref('');
 const email = ref('');
@@ -17,7 +16,8 @@ const handleSubmit = async () => {
     submissionStatus.value = 'idle';
 
     try {
-        const response = await fetch("https://submit-form.com/DvEzaeUZL", {
+        const url = "https://submit-form.com/DvEzaeUZL"
+        const response = await fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -53,9 +53,6 @@ const handleSubmit = async () => {
 
 <template>
     <section class="contact" id="contacto">
-        <div class="circles-bg">
-            <CirclesBackground client:only />
-        </div>
         <div class="form-wrapper fade-up">
             <form @submit.prevent="handleSubmit" class="form-container">
                 <label for="name" class="label">Nombre completo</label>
@@ -102,15 +99,6 @@ const handleSubmit = async () => {
     position: relative;
     overflow: hidden;
     isolation: isolate;
-}
-
-.circles-bg {
-    width: 100%;
-    height: 100vh;
-    position: absolute;
-    top: -30px;
-    left: 0;
-    z-index: 1;
 }
 
 .form-wrapper {
@@ -306,10 +294,6 @@ textarea {
     .contact {
         height: auto;
         padding: 4rem 0;
-    }
-
-    .circles-bg {
-        height: 100%;
     }
 
     .form-wrapper {

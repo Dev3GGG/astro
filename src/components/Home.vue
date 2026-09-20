@@ -1,8 +1,5 @@
 <template>
   <section class="home" id="home">
-    <div class="bg-3d" aria-hidden="true">
-      <CirclesBackground client:only />
-    </div>
     <div class="tres-container fade-up">
       <div class="grid fade-up">
         <div class="title-content fade-up">
@@ -17,74 +14,11 @@
         </div>
 
         <div class="object fade-up">
-          <TresCanvas v-bind="gl">
-            <TresPerspectiveCamera :position="[0, 0, 3]" />
-            <TresAmbientLight :intensity="0.9" />
-            <TresDirectionalLight :position="[5, 5, 5]" :intensity="2" />
-            <Suspense>
-              <Moon />
-            </Suspense>
-          </TresCanvas>
         </div>
       </div>
     </div>
   </section>
 </template>
-
-<script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { TresCanvas } from '@tresjs/core'
-import { BasicShadowMap, SRGBColorSpace, NoToneMapping } from 'three'
-import Moon from '@components/Moon.vue'
-import ButtonMain from '@components/Btnprimary.vue'
-import CirclesBackground from './CirclesBackground.vue'
-
-gsap.registerPlugin(ScrollTrigger)
-
-const gl = {
-  alpha: true,
-  shadows: true,
-  shadowMapType: BasicShadowMap,
-  outputColorSpace: SRGBColorSpace,
-  toneMapping: NoToneMapping,
-}
-
-function runFadeUp() {
-  gsap.utils.toArray<HTMLElement>('.fade-up').forEach((el) => {
-    gsap.from(el, {
-      y: 30,
-      autoAlpha: 0,
-      duration: 0.7,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 85%',
-        toggleActions: 'play none none none',
-        once: true,
-      },
-    })
-  })
-  ScrollTrigger.refresh()
-}
-
-function onTresReady() {
-  runFadeUp()
-}
-
-onMounted(() => {
-  if (document.documentElement.classList.contains('tres-ready')) {
-    runFadeUp()
-  } else {
-    window.addEventListener('tres:ready', onTresReady, { once: true })
-  }
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('tres:ready', onTresReady)
-})
-</script>
 
 <style>
 .home {
