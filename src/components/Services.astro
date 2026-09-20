@@ -55,14 +55,48 @@
 <style>
     .container {
         width: 100%;
-        min-height: 600px;
+        min-height: 100vh;
         background-color: aliceblue;
-        align-content: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10vh 20px;
+        box-sizing: border-box;
     }
     .title {
         text-align: center;
+        margin-bottom: 4rem;
+    }
+    .title h1 {
+        font-size: 60px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #111;
+        margin: 0;
     }
     .content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        width: 100%;
         padding: 20px;
+        box-sizing: border-box;
+    }
+    .content p {
+        background-color: #fff;
+        border: 1px solid #eaeaea;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        color: #444;
+        line-height: 1.6;
+        font-size: 16px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin: 0;
+    }
+    .content p:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--apple-shadow-hover);
     }
 </style>

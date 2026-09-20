@@ -1,8 +1,5 @@
 <template>
   <section class="home" id="home">
-    <div class="bg-3d" aria-hidden="true">
-      <CirclesBackground client:only />
-    </div>
     <div class="tres-container fade-up">
       <div class="grid fade-up">
         <div class="title-content fade-up">
@@ -13,19 +10,9 @@
             necessitatibus, similique architecto sit ad incidunt rem voluptatum explicabo natus eaque fugiat
             molestias illum veritatis, vel beatae autem nemo!
           </p>
-          <ButtonMain text="Descúbrelo" />
+          <ButtonMain text='Descúbrelo' />
         </div>
 
-        <div class="object fade-up">
-          <TresCanvas v-bind="gl">
-            <TresPerspectiveCamera :position="[0, 0, 3]" />
-            <TresAmbientLight :intensity="0.9" />
-            <TresDirectionalLight :position="[5, 5, 5]" :intensity="2" />
-            <Suspense>
-              <Moon />
-            </Suspense>
-          </TresCanvas>
-        </div>
       </div>
     </div>
   </section>
@@ -35,23 +22,18 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { TresCanvas } from '@tresjs/core'
-import { BasicShadowMap, SRGBColorSpace, NoToneMapping } from 'three'
-import Moon from '@components/Moon.vue'
 import ButtonMain from '@components/Btnprimary.vue'
-import CirclesBackground from './CirclesBackground.vue'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const gl = {
-  alpha: true,
-  shadows: true,
-  shadowMapType: BasicShadowMap,
-  outputColorSpace: SRGBColorSpace,
-  toneMapping: NoToneMapping,
-}
-
 function runFadeUp() {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    gsap.utils.toArray<HTMLElement>('.fade-up').forEach((el) => {
+      gsap.set(el, { autoAlpha: 1, y: 0 });
+    });
+    return;
+  }
   gsap.utils.toArray<HTMLElement>('.fade-up').forEach((el) => {
     gsap.from(el, {
       y: 30,
@@ -74,41 +56,44 @@ function onTresReady() {
 }
 
 onMounted(() => {
-  if (document.documentElement.classList.contains('tres-ready')) {
+  if (document.documentElement.classList.contains('app-ready')) {
     runFadeUp()
   } else {
-    window.addEventListener('tres:ready', onTresReady, { once: true })
+    window.addEventListener('app:ready', onTresReady, { once: true })
   }
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('tres:ready', onTresReady)
+  window.removeEventListener('app:ready', runFadeUp)
 })
 </script>
 
 <style>
 .home {
-  margin-top: 90px;
+  position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  padding: 80px 20px 40px;
 }
 
 .tres-container {
   position: relative;
   isolation: isolate;
-  max-width: 80%;
+  max-width: 1200px;
+  width: 100%;
   border-radius: 28px;
   margin-bottom: 60px;
   outline: 1px solid #e9ecf5;
-  padding: clamp(20px, 3vw, 28px) clamp(20px, 4vw, 36px);
   background: lch(47.9% 8.61 273.31 / 0.118);
   overflow: hidden;
   padding-block-end: clamp(20px, 4vw, 40px);
   padding-block-start: 20px;
   padding-inline: clamp(12px, 3vw, 32px);
+  margin: 0 auto;
 }
 
 .bg-3d {
@@ -133,7 +118,7 @@ onBeforeUnmount(() => {
 
 @media (max-width: 1024px) {
   .home {
-    margin-top: 50px;
+    padding: 60px 15px 30px;
   }
 
   .tres-container {
@@ -148,34 +133,39 @@ onBeforeUnmount(() => {
   .title-content {
     order: 1;
   }
-
-  .object {
-    order: 2;
-  }
 }
 
 .title-part-one {
-  letter-spacing: 0.18em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  font-size: clamp(18px, 2.1vw, 29px);
+  font-weight: 600;
+  font-size: clamp(16px, 2vw, 24px);
   color: rgba(0, 0, 0, 1);
-  opacity: 0.8;
   margin: 0 0 8px 0;
 }
 
 .title-part-two {
   color: rgba(194, 205, 255, 1);
   margin: 0 0 clamp(10px, 1.6vw, 16px) 0;
-  line-height: 0.95;
-  font-weight: 900;
+  line-height: 1;
+  font-weight: 800;
   font-size: clamp(36px, 6vw, 64px);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+}
+
+.copy {
+  margin: 0 0 clamp(15px, 2.5vw, 20px) 0;
+  font-size: clamp(15px, 1.9vw, 18px);
+  line-height: 1.6;
+  color: #fff;
 }
 
 .title-content p:not(.title-part-one) {
   margin: 0 0 clamp(12px, 2.5vw, 18px) 0;
-  font-size: clamp(14px, 1.9vw, 16px);
-  line-height: 1.5;
+  font-size: clamp(15px, 1.9vw, 18px);
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 1);
+  opacity: 0.8;
 }
 
 .object {

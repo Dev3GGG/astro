@@ -1,50 +1,46 @@
-<template>
-  <transition name="fade" appear>
-    <div v-if="showLoader" class="page-loader">
-      <img :src="Logo" alt="Nizana" class="loading" />
-    </div>
-  </transition>
+﻿<template>
+  <div v-if="isVisible" class="page-loader" ref="loaderRef">
+    <img src="/nizana.svg" alt="Nizana" class="loading" ref="logoRef" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue"
-import { useProgress } from "@tresjs/cientos"
-import Logo from "../assets/nizana.svg?url"
-import { gsap } from 'gsap'
+import { ref, onMounted } from 'vue';
+import { gsap } from 'gsap';
 
-const { hasFinishLoading } = await useProgress()
-const showLoader = ref(true)
-
-function announceReady() {
-  window.dispatchEvent(new CustomEvent("tres:ready"))
-  document.documentElement.classList.add("tres-ready")
-}
-
-watch(hasFinishLoading, (done) => {
-  if (done) {
-    setTimeout(() => {
-      showLoader.value = false
-      announceReady()
-    }, 1000)
-  }
-})
+const isVisible = ref(true);
+const loaderRef = ref<HTMLElement | null>(null);
+const logoRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
-  const tl = gsap.timeline();
-  tl.from(".loading", {
-    opacity: 0,
-    scaleX: 0.8,
-    scaleY: 0.8,
-    y: -25,
-    duration: 1.2,
-    delay: 0.1,
-    ease: "back.out(1.7)",
-  })
-  if (hasFinishLoading.value) {
-    showLoader.value = false
-    announceReady()
-  }
-})
+  // Aseguramos que no haya scroll mientras carga
+  document.body.style.overflow = "hidden";
+
+  // Timeline de GSAP para control exacto
+  const tl = gsap.timeline({
+    onComplete: () => {
+      // Cuando termina la animación de salida:
+      isVisible.value = false;
+      document.body.style.overflow = "auto";
+      window.dispatchEvent(new CustomEvent("app:ready"));
+      document.documentElement.classList.add("app-ready");
+    }
+  });
+
+  // 1. Animamos el logo (Aparece)
+  tl.fromTo(
+    logoRef.value,
+    { opacity: 0, scale: 0.8, y: -25 },
+    { opacity: 1, scale: 1, y: 0, duration: 1.2, ease: "back.out(1.7)" }
+  );
+
+  // 2. Animamos la pantalla blanca (Se desvanece)
+  tl.to(
+    loaderRef.value,
+    { opacity: 0, duration: 0.8, ease: "power2.inOut" },
+    "+=0.3" // Mantiene el logo en pantalla 0.3s antes de desvanecer
+  );
+});
 </script>
 
 <style scoped>
@@ -54,7 +50,9 @@ onMounted(() => {
   z-index: 9999;
   display: grid;
   place-items: center;
-  background: #ffffff;
+  background-color: #ffffff;
+  /* Previene parpadeos de FOUC */
+  will-change: opacity;
 }
 
 .loading {
@@ -62,8 +60,9 @@ onMounted(() => {
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
-  animation: logo-in 0.8s ease-out 0.15s both,
-    slow-spin 12s linear infinite;
+  /* Inicia invisible para que GSAP tome el control sin parpadeos */
+  opacity: 0;
+  will-change: transform, opacity;
 }
-
 </style>
+
