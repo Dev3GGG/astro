@@ -100,58 +100,48 @@ const slides = [
 
 <script>
     // @ts-nocheck
-    
-    /**
-     * @param {HTMLElement} container
-     */
     function initAccordion(container) {
         if (container.dataset.opInit === "true") return;
         container.dataset.opInit = "true";
 
         const AUTOPLAY_MS = parseInt(container.dataset.autoplayMs || "7000", 10);
-
         const panes = Array.from(container.querySelectorAll(".op-pane"));
-
-        const tabs = Array.from(container.querySelectorAll(".op-tab"));
+        const tabs  = Array.from(container.querySelectorAll(".op-tab"));
         const count = panes.length;
 
-        let active = 0;
-        let paused = false;
-        let isAnimating = false;
+        let active    = 0;
+        let paused    = false;
+        let timer     = null;
 
         const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-        /**
-         * @param {HTMLElement} pane
-         * @param {boolean} start
-         */
-        function resetProgress(pane, start) {
-            
+        function startTimer() {
+            clearTimeout(timer);
+            if (prefersReducedMotion.matches) return;
+            timer = setTimeout(function() {
+                goTo((active + 1) % count);
+            }, AUTOPLAY_MS);
+        }
+        function stopTimer() {
+            clearTimeout(timer);
+            timer = null;
+        }
+        function resetBar(pane, play) {
             const fill = pane.querySelector(".op-progress-fill");
-            if (!fill || !fill.parentNode) return;
+            if (!fill) return;
 
-            const newFill =  (fill.cloneNode(true));
-            fill.parentNode.replaceChild(newFill, fill);
+            fill.classList.remove("is-playing");
+            void fill.offsetWidth;
 
-            if (start && !prefersReducedMotion.matches) {
-                newFill.style.setProperty("--autoplay-duration", AUTOPLAY_MS + "ms");
-                newFill.classList.add("is-playing");
-                newFill.style.animationPlayState = paused ? "paused" : "running";
-            } else {
-                newFill.classList.remove("is-playing");
+            if (play && !prefersReducedMotion.matches) {
+                fill.style.setProperty("--autoplay-duration", AUTOPLAY_MS + "ms");
+                fill.classList.add("is-playing");
+                fill.style.animationPlayState = paused ? "paused" : "running";
             }
         }
 
-        /**
-         * @param {number} index
-         */
         function goTo(index) {
             if (index < 0 || index >= count) return;
-
-            if (isAnimating && index !== active) return;
-            isAnimating = true;
-            setTimeout(function() { isAnimating = false; }, 400);
-
             active = index;
 
             panes.forEach(function(p, i) {
@@ -161,66 +151,44 @@ const slides = [
                 const tab = tabs[i];
                 if (tab) {
                     tab.setAttribute("aria-selected", isActive ? "true" : "false");
-                    tab.setAttribute("tabindex", isActive ? "0" : "-1");
+                    tab.setAttribute("tabindex",       isActive ? "0"    : "-1");
                 }
                 const panel = p.querySelector(".op-content");
-                if (panel) {
-                    panel.setAttribute("aria-hidden", isActive ? "false" : "true");
-                }
+                if (panel) panel.setAttribute("aria-hidden", isActive ? "false" : "true");
 
-                resetProgress(p, isActive);
+                resetBar(p, isActive);
             });
+            startTimer();
         }
-
-        /**
-         * @param {Event} e
-         */
-        function onAnimationEnd(e) {
-            const animEvent =  (e);
-            if (animEvent.animationName && animEvent.animationName.includes("op-fillBar")) {
-                const target =  (e.target);
-                const pane = target.closest(".op-pane");
-                if (pane && pane === panes[active]) {
-                    const nextIndex = (active + 1) % count;
-                    goTo(nextIndex);
-                }
-            }
-        }
-        container.addEventListener("animationend", onAnimationEnd);
-
         function pause() {
             if (paused) return;
             paused = true;
-            
-            const fill = panes[active] ? panes[active].querySelector(".op-progress-fill") : null;
+            stopTimer();
+            const fill = panes[active] && panes[active].querySelector(".op-progress-fill");
             if (fill) fill.style.animationPlayState = "paused";
         }
 
         function resume() {
             if (!paused) return;
             paused = false;
-            
-            const fill = panes[active] ? panes[active].querySelector(".op-progress-fill") : null;
+            const fill = panes[active] && panes[active].querySelector(".op-progress-fill");
             if (fill) fill.style.animationPlayState = "running";
+            goTo(active);
         }
 
         function onVisibilityChange() {
             document.hidden ? pause() : resume();
         }
 
-        /**
-         * @param {KeyboardEvent} e
-         */
         function onKeydown(e) {
-            const target =  (e.target);
+            const target = e.target;
             if (!target.classList.contains("op-tab")) return;
-
             let next = null;
             switch (e.key) {
                 case "ArrowRight": case "ArrowDown": next = (active + 1) % count; break;
-                case "ArrowLeft": case "ArrowUp": next = (active - 1 + count) % count; break;
+                case "ArrowLeft":  case "ArrowUp":   next = (active - 1 + count) % count; break;
                 case "Home": next = 0; break;
-                case "End": next = count - 1; break;
+                case "End":  next = count - 1; break;
                 default: return;
             }
             e.preventDefault();
@@ -240,37 +208,31 @@ const slides = [
         panes.forEach(function(pane, idx) {
             pane.style.cursor = "pointer";
             pane.addEventListener("click", function(e) {
-                const target =  (e.target);
-                if (target.closest("a, button, input, textarea, select")) return;
+                if (e.target.closest("a, button, input, textarea, select")) return;
                 goTo(idx);
             });
         });
 
         container.addEventListener("mouseenter", pause);
         container.addEventListener("mouseleave", resume);
-        container.addEventListener("focusin", pause);
-        container.addEventListener("focusout", resume);
+        container.addEventListener("focusin",    pause);
+        container.addEventListener("focusout",   resume);
         document.addEventListener("visibilitychange", onVisibilityChange);
         container.addEventListener("keydown", onKeydown);
 
-        function onMotionPrefChange() {
-            if (prefersReducedMotion.matches) {
-                panes.forEach(function(p) { resetProgress(p, false); });
-            } else {
-                goTo(active);
-            }
-        }
-        prefersReducedMotion.addEventListener("change", onMotionPrefChange);
+        prefersReducedMotion.addEventListener("change", function() {
+            prefersReducedMotion.matches ? stopTimer() : goTo(active);
+        });
 
         const c = container;
         c.__opCleanup = function() {
+            stopTimer();
             document.removeEventListener("visibilitychange", onVisibilityChange);
-            container.removeEventListener("keydown", onKeydown);
-            container.removeEventListener("mouseenter", pause);
-            container.removeEventListener("mouseleave", resume);
-            container.removeEventListener("focusin", pause);
-            container.removeEventListener("focusout", resume);
-            prefersReducedMotion.removeEventListener("change", onMotionPrefChange);
+            container.removeEventListener("keydown",     onKeydown);
+            container.removeEventListener("mouseenter",  pause);
+            container.removeEventListener("mouseleave",  resume);
+            container.removeEventListener("focusin",     pause);
+            container.removeEventListener("focusout",    resume);
             container.removeAttribute("data-op-init");
         };
 
@@ -278,10 +240,8 @@ const slides = [
     }
 
     function boot() {
-        
         const el = document.querySelector(".op-accordion");
         if (!el) return;
-
         const c = el;
         if (c.__opCleanup) c.__opCleanup();
         initAccordion(el);
@@ -320,7 +280,6 @@ const slides = [
         background: #0b1222;
         color: #eef2ff;
         
-        contain: layout style;
         transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1);
         display: flex;
         flex-direction: column;
@@ -468,7 +427,7 @@ const slides = [
     }
 
     .op-progress-fill.is-playing {
-        animation: op-fillBar var(--autoplay-duration, 7000ms) linear forwards;
+        animation: op-fillBar var(--autoplay-duration, 7000ms) linear;
     }
 
     @keyframes op-fillBar {
